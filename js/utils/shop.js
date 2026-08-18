@@ -23,7 +23,7 @@ export const SHOP_ITEMS = [
     id: 'skin_gold',
     type: 'skin',
     name: 'Gold Car',
-    desc: 'Premium gold finish',
+    desc: 'Премиум',
     price: 1,
     cssClass: 'shop-item__icon--gold',
     carColor: 'gold',
@@ -31,22 +31,22 @@ export const SHOP_ITEMS = [
   {
     id: 'upgrade_speed',
     type: 'upgrade',
-    name: 'Engine Tuning',
-    desc: 'Increases maneuverability (Left/Right speed)',
+    name: 'Улучшение двигателя',
+    desc: 'Увеличивает манёвренность',
     price: 1,
   },
   {
     id: 'consumable_life',
     type: 'consumable',
-    name: 'Extra Life',
-    desc: 'Continue game after a crash (Max 3)',
+    name: 'Дополнительная жизнь',
+    desc: 'Продолжить игру после столкновения (Максимум 3)',
     price: 1,
   },
   {
     id: 'unlock_magnet',
     type: 'unlock',
-    name: 'Coin Magnet',
-    desc: 'Spawns magnets on the road. Collecting it gives x3 coins!',
+    name: 'Магнит монет',
+    desc: 'Добавляет на дорогу магниты!',
     price: 1,
   }
 ];
@@ -79,7 +79,7 @@ export function initShop() {
       
       let isBought = false;
       let isSelected = false;
-      let buttonText = `Buy (${item.price})`;
+      let buttonText = `Купить (${item.price})`;
       let canAfford = state.totalCoins >= item.price;
       let buttonClass = 'shop-item__button';
       let disabled = !canAfford;
@@ -97,19 +97,19 @@ export function initShop() {
       } else if (item.type === 'upgrade' && item.id === 'upgrade_speed') {
         isBought = state.speedLevel > 1; 
         if (isBought) {
-          buttonText = 'Maxed';
+          buttonText = 'Максимум';
           disabled = true;
         }
       } else if (item.type === 'unlock' && item.id === 'unlock_magnet') {
         isBought = state.hasMagnet;
         if (isBought) {
-          buttonText = 'Unlocked';
+          buttonText = 'Разблокировано';
           disabled = true;
         }
       } else if (item.type === 'consumable' && item.id === 'consumable_life') {
-        buttonText = `Buy (${item.price}) [Owned: ${state.extraLives}]`;
+        buttonText = `Купить (${item.price}) [Имеется: ${state.extraLives}]`;
         if (state.extraLives >= 3) {
-            buttonText = `Maxed [Owned: 3]`;
+            buttonText = `Максимум [Имеется: 3]`;
             disabled = true;
         }
       }
@@ -149,7 +149,6 @@ export function initShop() {
     const state = Storage.get();
 
     if (item.type === 'skin' && isBought) {
-      // Select skin
       state.selectedCar = item.carColor;
       Storage.save(state);
       renderShop();

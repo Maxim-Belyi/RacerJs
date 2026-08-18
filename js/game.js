@@ -36,7 +36,6 @@ import { Sounds } from "./utils/sound.js";
 import { initShop, applySkin } from "./utils/shop.js";
 
 (function () {
-  // --- State ---
   let isPause = true;
   let animationId = null;
   let score = 0;
@@ -48,7 +47,7 @@ import { initShop, applySkin } from "./utils/shop.js";
   let signsMoveSpeed = 5;
 
   const road = document.querySelector('[data-js-road]');
-  const dangerElem = danger; // 'danger' imported from variables
+  const dangerElem = danger; 
   const dangerInfo = createElementInfo(dangerElem);
 
   const EXTRA_COIN_COUNT = 16;
@@ -63,7 +62,10 @@ import { initShop, applySkin } from "./utils/shop.js";
 
     const info = createElementInfo(el);
     info.visible = false;
+    info.coords.x = 0;  
     info.coords.y = OFFSCREEN_Y;
+    info.width  = info.width  || 40; 
+    info.height = info.height || 40;
     el.style.display = 'none';
     el.style.transform = `translate(0px, ${OFFSCREEN_Y}px)`;
 
@@ -103,6 +105,7 @@ import { initShop, applySkin } from "./utils/shop.js";
     const img = elem.querySelector('img');
     img.classList.add('pop-collect');
     img.addEventListener('animationend', () => {
+      elem.style.display = 'none';  // hide parent after pop animation
       img.classList.remove('pop-collect');
     }, { once: true });
 
@@ -240,13 +243,21 @@ import { initShop, applySkin } from "./utils/shop.js";
     let newX = elemInfo.coords.x;
 
     if (newY > window.innerHeight + 50) {
-      // Teleport element far above screen, recalculate X
+      // Recycle: always reset, regardless of visible flag.
+      // After recycle, element is visible again for next pass.
       elemInfo.coords.y = -trackLength;
       newX = Math.random() * (roadWidth - elemInfo.width);
       elemInfo.coords.x = newX;
       elem.style.display = 'initial';
       elemInfo.visible = true;
       elem.style.transform = `translate(${newX}px, ${-trackLength}px)`;
+      return;
+    }
+
+    // If collected (visible=false), keep moving coords down so recycling triggers naturally.
+    // Don't update the DOM transform — element is already hidden by spawnPopLabel.
+    if (!elemInfo.visible) {
+      elemInfo.coords.y = newY;
       return;
     }
 
@@ -272,17 +283,22 @@ import { initShop, applySkin } from "./utils/shop.js";
   }
 
   function spawnExtraCoins() {
+    // Use coin size from first visible extra coin, or default
+    const coinW = extraCoins[0]?.info.width || 40;
+    const maxX = Math.max(roadWidth - coinW, 10);
+
     extraCoins.forEach((coinObj, i) => {
       if (coinObj.info.coords.y === OFFSCREEN_Y) {
-        const delay = i * 80; 
+        const delay = i * 80;
         setTimeout(() => {
-          if (!magnetActive) return; 
+          if (!magnetActive) return;
           const startY = -(Math.random() * 2000 + 500);
+          const startX = Math.random() * maxX;
           coinObj.info.coords.y = startY;
-          coinObj.info.coords.x = Math.random() * (roadWidth - coinObj.info.width);
+          coinObj.info.coords.x = startX;
           coinObj.info.visible = true;
           coinObj.element.style.display = 'initial';
-          coinObj.element.style.transform = `translate(${coinObj.info.coords.x}px, ${startY}px)`;
+          coinObj.element.style.transform = `translate(${startX}px, ${startY}px)`;
         }, delay);
       }
     });
@@ -302,9 +318,8 @@ import { initShop, applySkin } from "./utils/shop.js";
   function collectCoin(elem, elemInfo) {
     score++;
     gameScoreValue.innerText = score;
-    spawnPopLabel(elem, '+1', 'coin');
-    elemInfo.visible = false;
-    elem.style.display = 'none';
+    spawnPopLabel(elem, '+1', 'coin');  // spawnPopLabel will hide elem after animation
+    elemInfo.visible = false;  // prevent re-collision while pop animation plays
 
     if (Sounds.isPlaying) Sounds.play('coin');
 
