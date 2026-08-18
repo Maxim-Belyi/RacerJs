@@ -240,29 +240,23 @@ import { initShop, applySkin } from "./utils/shop.js";
  
   function elementAnimation(elem, elemInfo, trackLength) {
     const newY = elemInfo.coords.y + signsMoveSpeed;
-    let newX = elemInfo.coords.x;
+    const newX = elemInfo.coords.x;
 
     if (newY > window.innerHeight + 50) {
-      // Recycle: always reset, regardless of visible flag.
-      // After recycle, element is visible again for next pass.
+      // Always recycle at bottom — coins, arrows, danger sign, magnet.
+      // visible=false (set during collision) is short-lived; element should come back normally.
+      const recycleX = Math.random() * (roadWidth - elemInfo.width);
       elemInfo.coords.y = -trackLength;
-      newX = Math.random() * (roadWidth - elemInfo.width);
-      elemInfo.coords.x = newX;
-      elem.style.display = 'initial';
+      elemInfo.coords.x = recycleX;
       elemInfo.visible = true;
-      elem.style.transform = `translate(${newX}px, ${-trackLength}px)`;
+      elem.style.display = 'initial';
+      elem.style.transform = `translate(${recycleX}px, ${-trackLength}px)`;
       return;
     }
 
-    // If collected (visible=false), keep moving coords down so recycling triggers naturally.
-    // Don't update the DOM transform — element is already hidden by spawnPopLabel.
-    if (!elemInfo.visible) {
-      elemInfo.coords.y = newY;
-      return;
-    }
-
+    // Always update DOM so temporarily-disabled elements (e.g. danger during boost)
+    // keep moving and don't freeze on screen.
     elemInfo.coords.y = newY;
-    elemInfo.coords.x = newX;
     elem.style.transform = `translate(${newX}px, ${newY}px)`;
   }
 
@@ -283,7 +277,6 @@ import { initShop, applySkin } from "./utils/shop.js";
   }
 
   function spawnExtraCoins() {
-    // Use coin size from first visible extra coin, or default
     const coinW = extraCoins[0]?.info.width || 40;
     const maxX = Math.max(roadWidth - coinW, 10);
 
@@ -318,8 +311,8 @@ import { initShop, applySkin } from "./utils/shop.js";
   function collectCoin(elem, elemInfo) {
     score++;
     gameScoreValue.innerText = score;
-    spawnPopLabel(elem, '+1', 'coin');  // spawnPopLabel will hide elem after animation
-    elemInfo.visible = false;  // prevent re-collision while pop animation plays
+    spawnPopLabel(elem, '+1', 'coin'); 
+    elemInfo.visible = false;  
 
     if (Sounds.isPlaying) Sounds.play('coin');
 
@@ -353,7 +346,6 @@ import { initShop, applySkin } from "./utils/shop.js";
       }
     });
 
-    // --- Extra coins (magnet pool) ---
     extraCoins.forEach(coinObj => {
       moveExtraCoin(coinObj);
 
@@ -363,7 +355,6 @@ import { initShop, applySkin } from "./utils/shop.js";
       }
     });
 
-    // --- Arrow boosters ---
     [{ el: arrow, info: arrowInfo }, { el: arrowB, info: arrowBInfo }].forEach(({ el, info }) => {
       elementAnimation(el, info, 4000);
       if (info.visible && hasCollision(blueCarInfo, info)) {
@@ -401,7 +392,6 @@ import { initShop, applySkin } from "./utils/shop.js";
         magnetTimeout = setTimeout(() => {
           magnetActive = false;
           if (carMagnetIndicator) carMagnetIndicator.style.display = 'none';
-          // Don't park coins immediately — let them fall off naturally
         }, 6000);
 
         spawnPopLabel(magnet, 'MAGNET!', 'boost');
