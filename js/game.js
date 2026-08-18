@@ -36,6 +36,7 @@ import { Sounds } from "./utils/sound.js";
 import { initShop, applySkin } from "./utils/shop.js";
 import { runCountdown } from './utils/countdown.js';
 import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/ai-car.js';
+import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
 (function () {
   let isPause = true;
@@ -50,6 +51,7 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
 
   let playerTravelDist = 0;
   let playerBoostDelta = 0;
+  let finishReached = false;
 
   const aiCars = [];
 
@@ -457,6 +459,22 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
 
     if (aiCars.length >= 2) resolveAiAiCollision(aiCars[0], aiCars[1]);
 
+    if (finishLine.update(playerTravelDist, blueCarInfo.coords.y)) {
+      finishLine.markCrossed();
+      finishReached = true;
+    }
+
+    if (finishReached) {
+      signsMoveSpeed   = Math.max(0, signsMoveSpeed   * 0.97);
+      treesMoveSpeed   = Math.max(0, treesMoveSpeed   * 0.97);
+      blueCarMoveSpeed = Math.max(0, blueCarMoveSpeed * 0.97);
+
+      if (signsMoveSpeed < 0.1) {
+        finishRace();
+        return;
+      }
+    }
+
     if (Sounds.isPlaying) Sounds.play('main');
 
     animationId = requestAnimationFrame(startGame);
@@ -508,6 +526,38 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
   carMagnetIndicator        = document.querySelector('[data-js-car-magnet]');
   const gameButton          = document.querySelector('[data-js-start-game-button]');
   const musicToggle         = document.querySelector('[data-js-sound-button]');
+  const finishLine          = new FinishLine(document.querySelector('[data-js-finish-line]'));
+  const raceResultEl        = document.querySelector('[data-js-race-result]');
+  const resultListEl        = document.querySelector('[data-js-result-list]');
+
+  function finishRace() {
+    cancelAnimationFrame(animationId);
+    stopCarAnimations();
+    if (carMagnetIndicator) carMagnetIndicator.style.display = 'none';
+    magnetActive = false;
+    clearTimeout(magnetTimeout);
+
+    const places = [
+      { label: 'You', dist: playerTravelDist },
+      ...aiCars.map((ai, i) => ({ label: `Бот ${i + 1}`, dist: ai.travelDist })),
+    ].sort((a, b) => b.dist - a.dist);
+
+    const medals = ['🥇', '🥈', '🥉'];
+    resultListEl.innerHTML = places
+      .map((p, i) => `<li class="race-result__item race-result__item--${['first','second','third'][i] || ''}">
+        <span>${medals[i] || (i + 1)}</span><span>${p.label}</span>
+      </li>`)
+      .join('');
+
+    raceResultEl.classList.add('visible');
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-js-restart]')) {
+      sessionStorage.setItem('skipWelcome', 'true');
+      window.location.reload();
+    }
+  });
 
   welcomeStartButton.addEventListener('click', () => {
     welcomeScreen.style.display = 'none';
