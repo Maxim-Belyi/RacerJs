@@ -2,6 +2,8 @@ import {
   blueCar,
   arrow,
   arrowInfo,
+  arrowB,
+  arrowBInfo,
   gameScoreWrapper,
   gameScoreValue,
   backdropEndGame,
@@ -9,8 +11,12 @@ import {
   trees,
   coin,
   coinAlt,
+  coinB,
+  coinC,
   coinInfo,
   coinAltInfo,
+  coinBInfo,
+  coinCInfo,
   controlLeft,
   controlDown,
   controlTop,
@@ -166,6 +172,15 @@ import { Sounds } from "./utils/sound.js";
       return;
     }
 
+    // Наклон машины при повороте
+    if (direction === 'left') {
+      blueCar.classList.remove('car--lean-right');
+      blueCar.classList.add('car--lean-left');
+    } else if (direction === 'right') {
+      blueCar.classList.remove('car--lean-left');
+      blueCar.classList.add('car--lean-right');
+    }
+
     const moveTouchFunction = {
       up: moveUp,
       down: moveDown,
@@ -184,6 +199,9 @@ import { Sounds } from "./utils/sound.js";
       cancelAnimationFrame(blueCarInfo.move[direction]);
       blueCarInfo.move[direction] = null;
     }
+    // Убираем наклон при отпускании клавиши
+    if (direction === 'left')  blueCar.classList.remove('car--lean-left');
+    if (direction === 'right') blueCar.classList.remove('car--lean-right');
   }
 
   const controls = [
@@ -248,9 +266,12 @@ import { Sounds } from "./utils/sound.js";
     if (!isPause) {
       treesAnimation();
       elementAnimation(coin, coinInfo, negativeRandom100);
-      elementAnimation(arrow, arrowInfo, negativeRandom500);
-      elementAnimation(danger, dangerInfo, negativeRandom900);
       elementAnimation(coinAlt, coinAltInfo, negativeRandom500);
+      elementAnimation(coinB, coinBInfo, negativeRandom100);
+      elementAnimation(coinC, coinCInfo, negativeRandom500);
+      elementAnimation(arrow, arrowInfo, negativeRandom500);
+      elementAnimation(arrowB, arrowBInfo, negativeRandom900);
+      elementAnimation(danger, dangerInfo, negativeRandom900);
 
       console.log(blueCarInfo.coords.y)
       if (Sounds.isPlaying) { Sounds.play("main") };
@@ -284,6 +305,30 @@ import { Sounds } from "./utils/sound.js";
         if (Sounds.isPlaying) { Sounds.play("coin"); }
       }
 
+      if (coinBInfo.visible && hasCollision(blueCarInfo, coinBInfo)) {
+        score++;
+        gameScoreValue.innerText = score;
+        spawnPopLabel(coinB, '+1', 'coin');
+        coinBInfo.visible = false;
+
+        if (Sounds.isPlaying) { Sounds.play("coin"); }
+
+        if (score % 3 === 0) {
+          blueCarMoveSpeed++;
+          signsMoveSpeed++;
+          treesMoveSpeed++;
+        }
+      }
+
+      if (coinCInfo.visible && hasCollision(blueCarInfo, coinCInfo)) {
+        score++;
+        gameScoreValue.innerText = score;
+        spawnPopLabel(coinC, '+1', 'coin');
+        coinCInfo.visible = false;
+
+        if (Sounds.isPlaying) { Sounds.play("coin"); }
+      }
+
       if (arrowInfo.visible && hasCollision(blueCarInfo, arrowInfo)) {
         spawnPopLabel(arrow, 'BOOST!', 'boost');
         arrowInfo.visible = false;
@@ -313,6 +358,33 @@ import { Sounds } from "./utils/sound.js";
           }, 1000);
         }, 2000);
       }
+
+      if (arrowBInfo.visible && hasCollision(blueCarInfo, arrowBInfo)) {
+        spawnPopLabel(arrowB, 'BOOST!', 'boost');
+        arrowBInfo.visible = false;
+        danger.style.opacity = 0.2;
+        dangerInfo.visible = false;
+        if (Sounds.isPlaying) { Sounds.play("arrow") };
+
+        blueCar.classList.add('car--boosting');
+
+        blueCarMoveSpeed += 7;
+        treesMoveSpeed += 5;
+        signsMoveSpeed += 4;
+
+        setTimeout(() => {
+          danger.style.opacity = 1;
+          blueCarMoveSpeed -= 7;
+          treesMoveSpeed -= 5;
+          signsMoveSpeed -= 4;
+          blueCar.classList.remove('car--boosting');
+
+          setTimeout(() => {
+            dangerInfo.visible = true;
+          }, 1000);
+        }, 2000);
+      }
+
       animationId = requestAnimationFrame(startGame);
     }
   }

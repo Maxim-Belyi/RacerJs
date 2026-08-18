@@ -31,7 +31,21 @@
     }
 }
 
-/* Состояние буста — вешается JS на 2 секунды */
+/* Плавный возврат к нулю */
+.car__blue img {
+    transition: transform 0.15s ease-out;
+}
+
+/* Наклон при движении влево */
+.car--lean-left img {
+    transform: rotate(-9deg) !important;
+}
+
+/* Наклон при движении вправо */
+.car--lean-right img {
+    transform: rotate(9deg) !important;
+}
+
 .car--boosting img {
     animation:
         boost-glow  0.4s ease-in-out infinite alternate,
