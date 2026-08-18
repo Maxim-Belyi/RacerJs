@@ -93,6 +93,11 @@
         width: fluid(70, 40);
         transform: translate(300px, -130vh);
     }
+
+    &__magnet {
+        width: fluid(90, 50);
+        transform: translate(250px, -150vh);
+    }
 }
 
 /* Анимация монеток — на img, чтобы не конфликтовать с JS transform на родителе */

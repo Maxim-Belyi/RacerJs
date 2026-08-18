@@ -4,6 +4,9 @@ import {
   arrowInfo,
   arrowB,
   arrowBInfo,
+  magnet,
+  magnetInfo,
+  danger,
   gameScoreWrapper,
   gameScoreValue,
   backdropEndGame,
@@ -26,9 +29,11 @@ import {
 } from "./utils/variables.js";
 
 import { hasCollision } from "./utils/has-collision.js";
+import { Storage } from "./utils/storage.js";
 import { createElementInfo } from "./utils/create-elem-info.js";
 import { getCoords } from "./utils/get-coords.js";
 import { Sounds } from "./utils/sound.js";
+import { initShop, applySkin } from "./utils/shop.js";
 
 
 (function () {
@@ -52,8 +57,6 @@ import { Sounds } from "./utils/sound.js";
    * @param {string} modifier   — CSS-модификатор ('coin' | 'boost')
    */
   function spawnPopLabel(elem, text, modifier) {
-    // Pop-анимация на img внутри знака
-    // (не на самом div — там inline transform от JS имеет приоритет над CSS-анимацией)
     const img = elem.querySelector('img');
     img.classList.add('pop-collect');
     img.addEventListener('animationend', () => {
@@ -61,7 +64,6 @@ import { Sounds } from "./utils/sound.js";
       img.classList.remove('pop-collect');
     }, { once: true });
 
-    // Плавающий текст в позиции знака
     const rect = elem.getBoundingClientRect();
     const label = document.createElement('div');
     label.className = `pop-label pop-label--${modifier}`;
@@ -97,6 +99,7 @@ import { Sounds } from "./utils/sound.js";
 
   arrowInfo.coords.y = -2000;
   arrowBInfo.coords.y = -4000;
+  magnetInfo.coords.y = -6000;
 
   dangerInfo.coords.y = -3000;
 
@@ -178,7 +181,6 @@ import { Sounds } from "./utils/sound.js";
       return;
     }
 
-    // Наклон машины при повороте
     if (direction === 'left') {
       blueCar.classList.remove('car--lean-right');
       blueCar.classList.add('car--lean-left');
@@ -205,7 +207,6 @@ import { Sounds } from "./utils/sound.js";
       cancelAnimationFrame(blueCarInfo.move[direction]);
       blueCarInfo.move[direction] = null;
     }
-    // Убираем наклон при отпускании клавиши
     if (direction === 'left')  blueCar.classList.remove('car--lean-left');
     if (direction === 'right') blueCar.classList.remove('car--lean-right');
   }
@@ -229,7 +230,6 @@ import { Sounds } from "./utils/sound.js";
   })
 
   function treesAnimation() {
-    // Анимация разметки дороги — синхронно со скоростью деревьев
     roadMarkingOffset = (roadMarkingOffset + treesMoveSpeed) % MARKING_REPEAT;
     roadMarking.style.backgroundPositionY = roadMarkingOffset + 'px';
 
@@ -277,7 +277,19 @@ import { Sounds } from "./utils/sound.js";
       elementAnimation(coinC, coinCInfo, 2400);
       elementAnimation(arrow, arrowInfo, 4000);
       elementAnimation(arrowB, arrowBInfo, 4000);
+      
+      const state = Storage.get();
+      if (state.hasMagnet) {
+        elementAnimation(magnet, magnetInfo, 6000);
+      }
+      
       elementAnimation(danger, dangerInfo, 3000);
+
+      // Apply Speed Upgrade
+      if (state.speedLevel > 1 && blueCarInfo.moveSpeed === 5) {
+        blueCarMoveSpeed = 8;
+        blueCarInfo.moveSpeed = 8;
+      }
 
       console.log(blueCarInfo.coords.y)
       if (Sounds.isPlaying) { Sounds.play("main") };
@@ -335,6 +347,16 @@ import { Sounds } from "./utils/sound.js";
         if (Sounds.isPlaying) { Sounds.play("coin"); }
       }
 
+      if (magnetInfo.visible && hasCollision(blueCarInfo, magnetInfo)) {
+        score += 3;
+        gameScoreValue.innerText = score;
+        spawnPopLabel(magnet, '+3', 'arrow');
+        magnetInfo.visible = false;
+        magnet.style.display = 'none';
+
+        if (Sounds.isPlaying) { Sounds.play("coin"); }
+      }
+
       if (arrowInfo.visible && hasCollision(blueCarInfo, arrowInfo)) {
         spawnPopLabel(arrow, 'BOOST!', 'boost');
         arrowInfo.visible = false;
@@ -342,7 +364,6 @@ import { Sounds } from "./utils/sound.js";
         dangerInfo.visible = false;
         if (Sounds.isPlaying) { Sounds.play("arrow") };
 
-        // Визуальный шлейф буста
         blueCar.classList.add('car--boosting');
 
         blueCarMoveSpeed += 7;
@@ -395,8 +416,26 @@ import { Sounds } from "./utils/sound.js";
   }
 
   function finishGame() {
+    isPause = true;
     cancelAnimationFrame(animationId);
     stopCarAnimations();
+
+    const state = Storage.get();
+
+    if (state.extraLives > 0) {
+      if (confirm('Вы разбились! Использовать "Второй шанс" чтобы продолжить?')) {
+        Storage.spendCoins(0); // Dummy save, we need to reduce extraLives
+        state.extraLives--;
+        Storage.save(state);
+        // Сбрасываем позицию опасности
+        dangerInfo.coords.y -= 1500;
+        dangerInfo.visible = false;
+        danger.style.display = 'none';
+        isPause = false;
+        animationId = requestAnimationFrame(startGame);
+        return; // Возвращаемся в игру
+      }
+    }
 
     document.body.classList.add('screen-shake');
     document.body.addEventListener('animationend', () => {
@@ -404,15 +443,19 @@ import { Sounds } from "./utils/sound.js";
     }, { once: true });
 
     setTimeout(() => {
+      Storage.addCoins(score);
+      const currentState = Storage.get();
+
       backdropEndGame.style.display = 'flex';
       const scoreEndGame = backdropEndGame.querySelector('[data-js-end-game-score]');
-      scoreEndGame.innerText = score;
+      
+      scoreEndGame.innerHTML = `${score} <br><span style="font-size: 1rem; color: gold;">Total Coins: ${currentState.totalCoins}</span>`;
+      
       gameScoreWrapper.style.display = 'none';
       gameButton.style.display = 'none';
     }, 300);
   }
 
-  // Welcome Screen logic
   const welcomeScreen = document.querySelector('[data-js-welcome-screen]');
   const welcomeStartButton = document.querySelector('[data-js-start-game]');
   
@@ -428,6 +471,10 @@ import { Sounds } from "./utils/sound.js";
     sessionStorage.removeItem('skipWelcome');
     welcomeStartButton.click();
   }
+
+  // Init Shop
+  initShop();
+  applySkin(Storage.get().selectedCar);
 
   const gameButton = document.querySelector('[data-js-start-game-button]');
   gameButton.addEventListener("click", () => {

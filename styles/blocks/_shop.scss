@@ -1,0 +1,160 @@
+@use '../helpers' as *;
+
+.shop-modal {
+    display: none; // Toggled via JS
+    z-index: 30; // Above everything
+
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        max-width: rem(500);
+        max-height: 90vh;
+        background: rgba(20, 20, 30, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: rem(24);
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.6),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        overflow: hidden;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: rem(20) rem(24);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    &__title {
+        font-size: rem(24);
+        color: #fff;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    &__coins {
+        font-size: rem(20);
+        color: gold;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: rem(8);
+    }
+
+    &__close {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: rem(28);
+        line-height: 1;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &__content {
+        padding: rem(24);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: rem(16);
+    }
+}
+
+.shop-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: rem(16);
+    padding: rem(12) rem(16);
+    transition: transform 0.2s, background 0.2s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.02);
+    }
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: rem(16);
+    }
+
+    &__icon {
+        width: rem(48);
+        height: rem(48);
+        object-fit: contain;
+        /* Default CSS for car skins */
+        &--red { filter: hue-rotate(150deg) saturate(1.5); }
+        &--green { filter: hue-rotate(270deg) saturate(1.2); }
+        &--gold { filter: sepia(1) saturate(5) hue-rotate(-20deg); }
+    }
+
+    &__text {
+        display: flex;
+        flex-direction: column;
+        gap: rem(4);
+    }
+
+    &__name {
+        color: #fff;
+        font-size: rem(16);
+        font-weight: 600;
+    }
+
+    &__desc {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: rem(12);
+    }
+
+    &__action {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: rem(8);
+    }
+
+    &__price {
+        color: gold;
+        font-weight: 600;
+        font-size: rem(14);
+    }
+
+    &__button {
+        padding: rem(6) rem(16);
+        border-radius: rem(50);
+        font-size: rem(14);
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #fff;
+        background: linear-gradient(135deg, #00b4db, #0083b0);
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+
+        &:disabled {
+            background: #555;
+            color: #aaa;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        &--selected {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+        }
+    }
+}

@@ -19,6 +19,7 @@
                         <p>Total score: <span class="end-game__score" data-js-end-game-score>0</span></p>
                     </div>
                     <button class="button end-game__button" type="button" data-js-end-game-button>Restart</button>
+                    <button class="button end-game__button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Shop</button>
                 </div>
             </div>
 
@@ -39,7 +40,23 @@
                             <span>Избегай аварий</span>
                         </div>
                     </div>
-                    <button class="button welcome-screen__button" type="button" data-js-start-game>Start Game</button>
+                    <div style="display: flex; gap: 16px; margin-top: 8px;">
+                        <button class="button welcome-screen__button" type="button" data-js-start-game>Start Game</button>
+                        <button class="button welcome-screen__button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Shop</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="backdrop shop-modal" data-js-shop-modal>
+                <div class="shop-modal__wrapper">
+                    <div class="shop-modal__header">
+                        <h2 class="shop-modal__title">Store</h2>
+                        <div class="shop-modal__coins">🪙 <span data-js-shop-coins>0</span></div>
+                        <button class="shop-modal__close" type="button" data-js-close-shop>&times;</button>
+                    </div>
+                    <div class="shop-modal__content" data-js-shop-content>
+                        <!-- Items will be injected here via JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,6 +115,10 @@
 
         <div class="signs signs__arrow arrow-b" data-js-arrow-b>
             <img src="./images/arrow.png" alt="">
+        </div>
+
+        <div class="signs signs__magnet magnet" data-js-magnet style="display: none;">
+            <img src="./images/magnet.png" alt="">
         </div>
 
         <div class="game-score" data-js-game-score-wrapper>

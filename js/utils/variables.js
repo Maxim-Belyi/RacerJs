@@ -3,7 +3,12 @@ import { createElementInfo } from "./create-elem-info.js";
 export const arrow = document.querySelector('[data-js-arrow]');
 export const arrowInfo = createElementInfo(arrow);
 export const arrowB = document.querySelector('[data-js-arrow-b]');
-export const arrowBInfo = createElementInfo(arrowB);
+export const arrowBInfo = { ...createElementInfo(arrowB), visible: true };
+
+export const magnet = document.querySelector('[data-js-magnet]');
+export const magnetInfo = { ...createElementInfo(magnet), visible: false };
+
+export const danger = document.querySelector('[data-js-danger]');
 export const blueCar = document.querySelector('[data-js-car]');
 export let gameScoreWrapper = document.querySelector('[data-js-game-score-wrapper]');
 export let gameScoreValue = document.querySelector('[data-js-game-score-value]');
