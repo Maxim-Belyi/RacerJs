@@ -34,6 +34,7 @@ import { createElementInfo } from "./utils/create-elem-info.js";
 import { getCoords } from "./utils/get-coords.js";
 import { Sounds } from "./utils/sound.js";
 import { initShop, applySkin } from "./utils/shop.js";
+import { runCountdown } from './utils/countdown.js';
 
 (function () {
   let isPause = true;
@@ -105,7 +106,7 @@ import { initShop, applySkin } from "./utils/shop.js";
     const img = elem.querySelector('img');
     img.classList.add('pop-collect');
     img.addEventListener('animationend', () => {
-      elem.style.display = 'none';  // hide parent after pop animation
+      elem.style.display = 'none';  
       img.classList.remove('pop-collect');
     }, { once: true });
 
@@ -243,8 +244,6 @@ import { initShop, applySkin } from "./utils/shop.js";
     const newX = elemInfo.coords.x;
 
     if (newY > window.innerHeight + 50) {
-      // Always recycle at bottom — coins, arrows, danger sign, magnet.
-      // visible=false (set during collision) is short-lived; element should come back normally.
       const recycleX = Math.random() * (roadWidth - elemInfo.width);
       elemInfo.coords.y = -trackLength;
       elemInfo.coords.x = recycleX;
@@ -254,8 +253,6 @@ import { initShop, applySkin } from "./utils/shop.js";
       return;
     }
 
-    // Always update DOM so temporarily-disabled elements (e.g. danger during boost)
-    // keep moving and don't freeze on screen.
     elemInfo.coords.y = newY;
     elem.style.transform = `translate(${newX}px, ${newY}px)`;
   }
@@ -467,10 +464,12 @@ import { initShop, applySkin } from "./utils/shop.js";
 
   welcomeStartButton.addEventListener('click', () => {
     welcomeScreen.style.display = 'none';
-    isPause = false;
-    animationId = requestAnimationFrame(startGame);
-    gameButton.children[1].classList.remove('visually-hidden');
-    gameButton.children[0].classList.add('visually-hidden');
+    runCountdown(() => {
+      isPause = false;
+      animationId = requestAnimationFrame(startGame);
+      gameButton.children[1].classList.remove('visually-hidden');
+      gameButton.children[0].classList.add('visually-hidden');
+    });
   });
 
   if (sessionStorage.getItem('skipWelcome') === 'true') {
