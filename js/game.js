@@ -47,7 +47,6 @@ import { Sounds } from "./utils/sound.js";
   const MARKING_REPEAT = 80; // шаг паттерна разметки в px
 
   /**
-   * Создаёт плавающий текст-лейбл в точке элемента и удаляет его после анимации.
    * @param {HTMLElement} elem  — знак, на котором произошла коллизия
    * @param {string} text       — текст лейбла ('+1', 'BOOST!')
    * @param {string} modifier   — CSS-модификатор ('coin' | 'boost')
@@ -357,7 +356,6 @@ import { Sounds } from "./utils/sound.js";
           treesMoveSpeed -= 5;
           signsMoveSpeed -= 4;
 
-          // Убираем эффект буста
           blueCar.classList.remove('car--boosting');
 
           setTimeout(() => {
@@ -400,13 +398,11 @@ import { Sounds } from "./utils/sound.js";
     cancelAnimationFrame(animationId);
     stopCarAnimations();
 
-    // Встряска экрана — применяем к body (overflow:hidden уже стоит)
     document.body.classList.add('screen-shake');
     document.body.addEventListener('animationend', () => {
       document.body.classList.remove('screen-shake');
     }, { once: true });
 
-    // Показываем экран Game Over с небольшой задержкой — после shake
     setTimeout(() => {
       backdropEndGame.style.display = 'flex';
       const scoreEndGame = backdropEndGame.querySelector('[data-js-end-game-score]');
