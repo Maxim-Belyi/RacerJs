@@ -39,6 +39,10 @@ import { Sounds } from "./utils/sound.js";
   let treesMoveSpeed = 7;
   let signsMoveSpeed = 5;
 
+  const roadMarking = document.querySelector('[data-js-road-marking]');
+  let roadMarkingOffset = 0;
+  const MARKING_REPEAT = 80; // шаг паттерна разметки в px
+
   const blueCarInfo = {
     ...createElementInfo(blueCar),
     moveSpeed: blueCarMoveSpeed,
@@ -174,6 +178,10 @@ import { Sounds } from "./utils/sound.js";
   })
 
   function treesAnimation() {
+    // Анимация разметки дороги — синхронно со скоростью деревьев
+    roadMarkingOffset = (roadMarkingOffset + treesMoveSpeed) % MARKING_REPEAT;
+    roadMarking.style.backgroundPositionY = roadMarkingOffset + 'px';
+
     for (let i = 0; i < trees.length; i++) {
       const tree = trees[i];
       const coords = treesCoords[i];
