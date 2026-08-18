@@ -11,12 +11,14 @@
 @keyframes boost-glow {
     0%, 100% {
         filter:
+            var(--car-filter, none)
             drop-shadow(0 0 6px  rgba(80, 200, 255, 0.8))
             drop-shadow(0 0 14px rgba(80, 200, 255, 0.4))
             brightness(1.1);
     }
     50% {
         filter:
+            var(--car-filter, none)
             drop-shadow(0 0 12px rgba(80, 200, 255, 1))
             drop-shadow(0 0 28px rgba(80, 200, 255, 0.6))
             brightness(1.25);
@@ -33,6 +35,7 @@
 
 /* Плавный возврат к нулю */
 .car__blue img {
+    filter: var(--car-filter, none);
     transition: transform 0.15s ease-out;
 }
 
@@ -66,4 +69,15 @@
         blur(3px);
     pointer-events: none;
     z-index: -1;
+}
+
+.car-magnet-indicator {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    filter: drop-shadow(0 0 6px rgba(255, 0, 150, 0.8));
+    animation: magnet-pulse 1.5s ease-in-out infinite;
 }

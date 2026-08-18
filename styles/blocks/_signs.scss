@@ -69,6 +69,26 @@
     }
 }
 
+/* Магнит: пульсирующее розово-фиолетовое свечение */
+@keyframes magnet-pulse {
+    0%   {
+        filter:
+            drop-shadow(0 0 4px rgba(255, 0, 150, 0.6))
+            brightness(1);
+    }
+    50%  {
+        filter:
+            drop-shadow(0 0 10px rgba(255, 0, 150, 0.9))
+            drop-shadow(0 0 20px rgba(200, 50, 255, 0.5))
+            brightness(1.2);
+    }
+    100% {
+        filter:
+            drop-shadow(0 0 4px rgba(255, 0, 150, 0.6))
+            brightness(1);
+    }
+}
+
 .signs {
     position: absolute;
 
@@ -118,4 +138,9 @@
 /* Знак опасности */
 .signs__danger img {
     animation: danger-pulse 1.8s ease-in-out infinite;
+}
+
+/* Магнит */
+.signs__magnet img {
+    animation: magnet-pulse 1.5s ease-in-out infinite;
 }

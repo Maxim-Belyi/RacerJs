@@ -35,32 +35,74 @@ import { getCoords } from "./utils/get-coords.js";
 import { Sounds } from "./utils/sound.js";
 import { initShop, applySkin } from "./utils/shop.js";
 
-
 (function () {
-  const danger = document.querySelector('[data-js-danger]');
-  const dangerInfo = createElementInfo(danger);
-
+  // --- State ---
   let isPause = true;
   let animationId = null;
   let score = 0;
+  let magnetActive = false;
+  let magnetTimeout = null;
+
   let blueCarMoveSpeed = 3;
   let treesMoveSpeed = 7;
   let signsMoveSpeed = 5;
 
+  const road = document.querySelector('[data-js-road]');
+  const dangerElem = danger; // 'danger' imported from variables
+  const dangerInfo = createElementInfo(dangerElem);
+
+  const EXTRA_COIN_COUNT = 16;
+  const OFFSCREEN_Y = -10000; 
+  const extraCoins = [];
+
+  for (let i = 0; i < EXTRA_COIN_COUNT; i++) {
+    const el = document.createElement('div');
+    el.className = 'signs signs__coin coin-extra';
+    el.innerHTML = '<img src="./images/coin.png" alt="">';
+    road.appendChild(el);
+
+    const info = createElementInfo(el);
+    info.visible = false;
+    info.coords.y = OFFSCREEN_Y;
+    el.style.display = 'none';
+    el.style.transform = `translate(0px, ${OFFSCREEN_Y}px)`;
+
+    extraCoins.push({ element: el, info });
+  }
+
   const roadMarking = document.querySelector('[data-js-road-marking]');
   let roadMarkingOffset = 0;
-  const MARKING_REPEAT = 80; // шаг паттерна разметки в px
+  const MARKING_REPEAT = 80;
 
-  /**
-   * @param {HTMLElement} elem  — знак, на котором произошла коллизия
-   * @param {string} text       — текст лейбла ('+1', 'BOOST!')
-   * @param {string} modifier   — CSS-модификатор ('coin' | 'boost')
-   */
+  let carMagnetIndicator = null;
+
+  coinInfo.coords.y = -450;
+  coinAltInfo.coords.y = -800;
+  coinBInfo.coords.y = -1800;
+  coinCInfo.coords.y = -2400;
+
+  arrowInfo.coords.y = -2000;
+  arrowBInfo.coords.y = -4000;
+  magnetInfo.coords.y = -6000;
+  magnet.style.display = 'none';
+  magnetInfo.visible = false;
+
+  dangerInfo.coords.y = -3000;
+
+  const blueCarInfo = {
+    ...createElementInfo(blueCar),
+    moveSpeed: blueCarMoveSpeed,
+    move: { up: null, down: null, left: null, right: null },
+  };
+
+  for (let i = 0; i < trees.length; i++) {
+    treesCoords.push(getCoords(trees[i]));
+  }
+
   function spawnPopLabel(elem, text, modifier) {
     const img = elem.querySelector('img');
     img.classList.add('pop-collect');
     img.addEventListener('animationend', () => {
-      elem.style.display = 'none';
       img.classList.remove('pop-collect');
     }, { once: true });
 
@@ -74,113 +116,42 @@ import { initShop, applySkin } from "./utils/shop.js";
     label.addEventListener('animationend', () => label.remove(), { once: true });
   }
 
-  const blueCarInfo = {
-    ...createElementInfo(blueCar),
-    moveSpeed: blueCarMoveSpeed,
-
-    move: {
-      up: null,
-      down: null,
-      left: null,
-      right: null,
-    },
-  };
-
-  for (let i = 0; i < trees.length; i++) {
-    const tree = trees[i];
-    const coordsTree = getCoords(tree);
-    treesCoords.push(coordsTree);
-  }
-
-  coinInfo.coords.y = -450;
-  coinAltInfo.coords.y = -800;
-  coinBInfo.coords.y = -1800;
-  coinCInfo.coords.y = -2400;
-
-  arrowInfo.coords.y = -2000;
-  arrowBInfo.coords.y = -4000;
-  magnetInfo.coords.y = -6000;
-
-  dangerInfo.coords.y = -3000;
 
   function stopCarAnimations() {
-    Object.values(blueCarInfo.move).forEach((id) => {
-      if (id) cancelAnimationFrame(id);
-    });
-    Object.keys(blueCarInfo.move).forEach((key) => {
-      blueCarInfo.move[key] = null;
-    });
+    Object.values(blueCarInfo.move).forEach((id) => { if (id) cancelAnimationFrame(id); });
+    Object.keys(blueCarInfo.move).forEach((key) => { blueCarInfo.move[key] = null; });
   }
-
-  document.addEventListener("keydown", (event) => {
-    if (isPause) {
-      return;
-    }
-    switch (event.code) {
-      case 'ArrowUp': case 'KeyW': startMove('up'); break;
-      case 'ArrowDown': case 'KeyS': startMove('down'); break;
-      case 'ArrowLeft': case 'KeyA': startMove('left'); break;
-      case 'ArrowRight': case 'KeyD': startMove('right'); break;
-    }
-  });
-
-  document.addEventListener("keyup", (event) => {
-    if (isPause) {
-      return;
-    }
-    switch (event.code) {
-      case 'ArrowUp': case 'KeyW': stopMove('up'); break;
-      case 'ArrowDown': case 'KeyS': stopMove('down'); break;
-      case 'ArrowLeft': case 'KeyA': stopMove('left'); break;
-      case 'ArrowRight': case 'KeyD': stopMove('right'); break;
-    }
-  });
 
   function moveUp() {
     blueCarInfo.coords.y -= blueCarMoveSpeed;
     blueCar.style.transform = `translate(${blueCarInfo.coords.x}px, ${blueCarInfo.coords.y}px)`;
-    if (blueCarInfo.coords.y < -(window.innerHeight)) {
-      return;
-    } else { blueCarInfo.move.up = requestAnimationFrame(moveUp); }
+    if (blueCarInfo.coords.y < -(window.innerHeight)) return;
+    blueCarInfo.move.up = requestAnimationFrame(moveUp);
   }
 
   function moveDown() {
     blueCarInfo.coords.y += blueCarMoveSpeed;
-    if (blueCarInfo.coords.y > -blueCarInfo.height) {
-      return;
-    }
-
+    if (blueCarInfo.coords.y > -blueCarInfo.height) return;
     blueCar.style.transform = `translate(${blueCarInfo.coords.x}px, ${blueCarInfo.coords.y}px)`;
     blueCarInfo.move.down = requestAnimationFrame(moveDown);
   }
 
   function moveLeft() {
     blueCarInfo.coords.x -= blueCarMoveSpeed;
-
-    if (blueCarInfo.coords.x > roadWidth || blueCarInfo.coords.x < 0) {
-      return;
-    }
-
+    if (blueCarInfo.coords.x > roadWidth || blueCarInfo.coords.x < 0) return;
     blueCar.style.transform = `translate(${blueCarInfo.coords.x}px, ${blueCarInfo.coords.y}px)`;
     blueCarInfo.move.left = requestAnimationFrame(moveLeft);
   }
 
   function moveRight() {
     blueCarInfo.coords.x += blueCarMoveSpeed;
-
-    if (blueCarInfo.coords.x > roadWidth - blueCarInfo.width) {
-      return;
-    }
-
+    if (blueCarInfo.coords.x > roadWidth - blueCarInfo.width) return;
     blueCar.style.transform = `translate(${blueCarInfo.coords.x}px, ${blueCarInfo.coords.y}px)`;
     blueCarInfo.move.right = requestAnimationFrame(moveRight);
   }
 
   function startMove(direction) {
-    if (isPause) {
-      return;
-    }
-
+    if (isPause) return;
     if (direction === 'left') {
       blueCar.classList.remove('car--lean-right');
       blueCar.classList.add('car--lean-left');
@@ -188,17 +159,10 @@ import { initShop, applySkin } from "./utils/shop.js";
       blueCar.classList.remove('car--lean-left');
       blueCar.classList.add('car--lean-right');
     }
-
-    const moveTouchFunction = {
-      up: moveUp,
-      down: moveDown,
-      left: moveLeft,
-      right: moveRight,
-    };
-
+    const fns = { up: moveUp, down: moveDown, left: moveLeft, right: moveRight };
     if (!blueCarInfo.move[direction]) {
       stopCarAnimations();
-      blueCarInfo.move[direction] = requestAnimationFrame(moveTouchFunction[direction]);
+      blueCarInfo.move[direction] = requestAnimationFrame(fns[direction]);
     }
   }
 
@@ -211,229 +175,266 @@ import { initShop, applySkin } from "./utils/shop.js";
     if (direction === 'right') blueCar.classList.remove('car--lean-right');
   }
 
+  document.addEventListener('keydown', (e) => {
+    if (isPause) return;
+    switch (e.code) {
+      case 'ArrowUp':    case 'KeyW': startMove('up');    break;
+      case 'ArrowDown':  case 'KeyS': startMove('down');  break;
+      case 'ArrowLeft':  case 'KeyA': startMove('left');  break;
+      case 'ArrowRight': case 'KeyD': startMove('right'); break;
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (isPause) return;
+    switch (e.code) {
+      case 'ArrowUp':    case 'KeyW': stopMove('up');    break;
+      case 'ArrowDown':  case 'KeyS': stopMove('down');  break;
+      case 'ArrowLeft':  case 'KeyA': stopMove('left');  break;
+      case 'ArrowRight': case 'KeyD': stopMove('right'); break;
+    }
+  });
+
   const controls = [
-    { button: controlTop, direction: 'up' },
+    { button: controlTop,   direction: 'up'    },
     { button: controlRight, direction: 'right' },
-    { button: controlDown, direction: 'down' },
-    { button: controlLeft, direction: 'left' },
-  ]
-
+    { button: controlDown,  direction: 'down'  },
+    { button: controlLeft,  direction: 'left'  },
+  ];
   controls.forEach(({ button, direction }) => {
-    button.addEventListener('touchstart', (event) => {
-      event.preventDefault();
-      startMove(direction);
-    });
+    button.addEventListener('touchstart', (e) => { e.preventDefault(); startMove(direction); });
+    button.addEventListener('touchend',   ()  => { stopMove(direction); });
+  });
 
-    button.addEventListener('touchend', () => {
-      stopMove(direction);
-    })
-  })
 
   function treesAnimation() {
     roadMarkingOffset = (roadMarkingOffset + treesMoveSpeed) % MARKING_REPEAT;
     roadMarking.style.backgroundPositionY = roadMarkingOffset + 'px';
 
     for (let i = 0; i < trees.length; i++) {
-      const tree = trees[i];
-      const coords = treesCoords[i];
-
-      let newYCoord = coords.y + treesMoveSpeed;
-
-      if (newYCoord > window.innerHeight / 3) {
-        newYCoord = -window.innerHeight * 1.5;
-      }
-
-      treesCoords[i].y = newYCoord;
-      tree.style.transform = `translate(${coords.x}px, ${newYCoord}px)`;
+      let y = treesCoords[i].y + treesMoveSpeed;
+      if (y > window.innerHeight / 3) y = -window.innerHeight * 1.5;
+      treesCoords[i].y = y;
+      trees[i].style.transform = `translate(${treesCoords[i].x}px, ${y}px)`;
     }
   }
 
+
+  function pullCoinToCar(cInfo) {
+    const carCX = blueCarInfo.coords.x + blueCarInfo.width  / 2;
+    const carCY = blueCarInfo.coords.y + blueCarInfo.height / 2;
+    const coinCX = cInfo.coords.x + cInfo.width  / 2;
+    const coinCY = cInfo.coords.y + cInfo.height / 2;
+    const dx = carCX - coinCX;
+    const dy = carCY - coinCY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 900) {
+      cInfo.coords.x += dx * 0.04;
+      cInfo.coords.y += dy * 0.04;
+    }
+  }
+
+ 
   function elementAnimation(elem, elemInfo, trackLength) {
-    let newYCoord = elemInfo.coords.y + signsMoveSpeed;
-    let newXcoord = elemInfo.coords.x;
+    const newY = elemInfo.coords.y + signsMoveSpeed;
+    let newX = elemInfo.coords.x;
 
-    if (newYCoord > window.innerHeight / 10) {
-      newYCoord -= trackLength;
-
-      const directionX = Math.random() * (roadWidth - elemInfo.width);
-
-      elem.style.display = "initial";
+    if (newY > window.innerHeight + 50) {
+      // Teleport element far above screen, recalculate X
+      elemInfo.coords.y = -trackLength;
+      newX = Math.random() * (roadWidth - elemInfo.width);
+      elemInfo.coords.x = newX;
+      elem.style.display = 'initial';
       elemInfo.visible = true;
-      newXcoord = directionX;
+      elem.style.transform = `translate(${newX}px, ${-trackLength}px)`;
+      return;
     }
 
-    elemInfo.coords.y = newYCoord;
-    elemInfo.coords.x = newXcoord;
-
-    elem.style.transform = `translate(${newXcoord}px, ${newYCoord}px)`;
+    elemInfo.coords.y = newY;
+    elemInfo.coords.x = newX;
+    elem.style.transform = `translate(${newX}px, ${newY}px)`;
   }
 
+  function moveExtraCoin(coinObj) {
+    if (!coinObj.info.visible) return;
+
+    if (magnetActive) {
+      pullCoinToCar(coinObj.info);
+    }
+
+    const newY = coinObj.info.coords.y + signsMoveSpeed;
+    coinObj.info.coords.y = newY;
+    coinObj.element.style.transform = `translate(${coinObj.info.coords.x}px, ${newY}px)`;
+
+    if (newY > window.innerHeight + 50) {
+      parkExtraCoin(coinObj);
+    }
+  }
+
+  function spawnExtraCoins() {
+    extraCoins.forEach((coinObj, i) => {
+      if (coinObj.info.coords.y === OFFSCREEN_Y) {
+        const delay = i * 80; 
+        setTimeout(() => {
+          if (!magnetActive) return; 
+          const startY = -(Math.random() * 2000 + 500);
+          coinObj.info.coords.y = startY;
+          coinObj.info.coords.x = Math.random() * (roadWidth - coinObj.info.width);
+          coinObj.info.visible = true;
+          coinObj.element.style.display = 'initial';
+          coinObj.element.style.transform = `translate(${coinObj.info.coords.x}px, ${startY}px)`;
+        }, delay);
+      }
+    });
+  }
+
+  function parkExtraCoin(coinObj) {
+    coinObj.info.visible = false;
+    coinObj.element.style.display = 'none';
+    coinObj.info.coords.y = OFFSCREEN_Y;
+    coinObj.element.style.transform = `translate(0px, ${OFFSCREEN_Y}px)`;
+  }
+
+  function parkAllExtraCoins() {
+    extraCoins.forEach(parkExtraCoin);
+  }
+
+  function collectCoin(elem, elemInfo) {
+    score++;
+    gameScoreValue.innerText = score;
+    spawnPopLabel(elem, '+1', 'coin');
+    elemInfo.visible = false;
+    elem.style.display = 'none';
+
+    if (Sounds.isPlaying) Sounds.play('coin');
+
+    if (score % 3 === 0 && signsMoveSpeed < 25) {
+      blueCarMoveSpeed += 0.5;
+      signsMoveSpeed   += 0.5;
+      treesMoveSpeed   += 0.5;
+    }
+  }
+
+  
   function startGame() {
-    if (!isPause) {
-      treesAnimation();
-      elementAnimation(coin, coinInfo, 2400);
-      elementAnimation(coinAlt, coinAltInfo, 2400);
-      elementAnimation(coinB, coinBInfo, 2400);
-      elementAnimation(coinC, coinCInfo, 2400);
-      elementAnimation(arrow, arrowInfo, 4000);
-      elementAnimation(arrowB, arrowBInfo, 4000);
-      
-      const state = Storage.get();
-      if (state.hasMagnet) {
-        elementAnimation(magnet, magnetInfo, 6000);
+    if (isPause) return;
+
+    treesAnimation();
+
+    const regularCoins = [
+      { element: coin,    info: coinInfo,    speed: 1000 },
+      { element: coinAlt, info: coinAltInfo, speed: 1600 },
+      { element: coinB,   info: coinBInfo,   speed: 2000 },
+      { element: coinC,   info: coinCInfo,   speed: 2400 },
+    ];
+
+    regularCoins.forEach(c => {
+      elementAnimation(c.element, c.info, c.speed);
+
+      if (magnetActive && c.info.visible) pullCoinToCar(c.info);
+
+      if (c.info.visible && hasCollision(blueCarInfo, c.info)) {
+        collectCoin(c.element, c.info);
       }
-      
-      elementAnimation(danger, dangerInfo, 3000);
+    });
 
-      // Apply Speed Upgrade
-      if (state.speedLevel > 1 && blueCarInfo.moveSpeed === 5) {
-        blueCarMoveSpeed = 8;
-        blueCarInfo.moveSpeed = 8;
+    // --- Extra coins (magnet pool) ---
+    extraCoins.forEach(coinObj => {
+      moveExtraCoin(coinObj);
+
+      if (coinObj.info.visible && hasCollision(blueCarInfo, coinObj.info)) {
+        collectCoin(coinObj.element, coinObj.info);
+        parkExtraCoin(coinObj);
       }
+    });
 
-      console.log(blueCarInfo.coords.y)
-      if (Sounds.isPlaying) { Sounds.play("main") };
+    // --- Arrow boosters ---
+    [{ el: arrow, info: arrowInfo }, { el: arrowB, info: arrowBInfo }].forEach(({ el, info }) => {
+      elementAnimation(el, info, 4000);
+      if (info.visible && hasCollision(blueCarInfo, info)) {
+        spawnPopLabel(el, 'BOOST!', 'boost');
+        info.visible = false;
+        dangerElem.style.opacity = 0.2;
+        dangerInfo.visible = false;
+        if (Sounds.isPlaying) Sounds.play('arrow');
 
-      if (dangerInfo.visible && hasCollision(blueCarInfo, dangerInfo)) {
-        finishGame();
-        return;
+        blueCar.classList.add('car--boosting');
+        blueCarMoveSpeed += 7;
+        treesMoveSpeed   += 5;
+        signsMoveSpeed   += 4;
+
+        setTimeout(() => {
+          dangerElem.style.opacity = 1;
+          blueCarMoveSpeed -= 7;
+          treesMoveSpeed   -= 5;
+          signsMoveSpeed   -= 4;
+          blueCar.classList.remove('car--boosting');
+          setTimeout(() => { dangerInfo.visible = true; }, 1000);
+        }, 2000);
       }
+    });
 
-      if (coinInfo.visible && hasCollision(blueCarInfo, coinInfo)) {
-        score++;
-        gameScoreValue.innerText = score;
-        spawnPopLabel(coin, '+1', 'coin');
-        coinInfo.visible = false;
-
-        if (Sounds.isPlaying) { Sounds.play("coin"); }
-
-        if (score % 3 === 0) {
-          blueCarMoveSpeed++;
-          signsMoveSpeed++;
-          treesMoveSpeed++;
-        }
-      }
-
-      if (coinAltInfo.visible && hasCollision(blueCarInfo, coinAltInfo)) {
-        score++;
-        gameScoreValue.innerText = score;
-        spawnPopLabel(coinAlt, '+1', 'coin');
-        coinAltInfo.visible = false;
-
-        if (Sounds.isPlaying) { Sounds.play("coin"); }
-      }
-
-      if (coinBInfo.visible && hasCollision(blueCarInfo, coinBInfo)) {
-        score++;
-        gameScoreValue.innerText = score;
-        spawnPopLabel(coinB, '+1', 'coin');
-        coinBInfo.visible = false;
-
-        if (Sounds.isPlaying) { Sounds.play("coin"); }
-
-        if (score % 3 === 0) {
-          blueCarMoveSpeed++;
-          signsMoveSpeed++;
-          treesMoveSpeed++;
-        }
-      }
-
-      if (coinCInfo.visible && hasCollision(blueCarInfo, coinCInfo)) {
-        score++;
-        gameScoreValue.innerText = score;
-        spawnPopLabel(coinC, '+1', 'coin');
-        coinCInfo.visible = false;
-
-        if (Sounds.isPlaying) { Sounds.play("coin"); }
-      }
-
+    const state = Storage.get();
+    if (state.hasMagnet) {
+      elementAnimation(magnet, magnetInfo, 6000);
       if (magnetInfo.visible && hasCollision(blueCarInfo, magnetInfo)) {
-        score += 3;
-        gameScoreValue.innerText = score;
-        spawnPopLabel(magnet, '+3', 'arrow');
+        magnetActive = true;
+        if (carMagnetIndicator) carMagnetIndicator.style.display = 'block';
+        clearTimeout(magnetTimeout);
+        spawnExtraCoins();
+
+        magnetTimeout = setTimeout(() => {
+          magnetActive = false;
+          if (carMagnetIndicator) carMagnetIndicator.style.display = 'none';
+          // Don't park coins immediately — let them fall off naturally
+        }, 6000);
+
+        spawnPopLabel(magnet, 'MAGNET!', 'boost');
         magnetInfo.visible = false;
         magnet.style.display = 'none';
+        magnetInfo.coords.y = -6000;
 
-        if (Sounds.isPlaying) { Sounds.play("coin"); }
+        if (Sounds.isPlaying) Sounds.play('coin');
       }
-
-      if (arrowInfo.visible && hasCollision(blueCarInfo, arrowInfo)) {
-        spawnPopLabel(arrow, 'BOOST!', 'boost');
-        arrowInfo.visible = false;
-        danger.style.opacity = 0.2;
-        dangerInfo.visible = false;
-        if (Sounds.isPlaying) { Sounds.play("arrow") };
-
-        blueCar.classList.add('car--boosting');
-
-        blueCarMoveSpeed += 7;
-        treesMoveSpeed += 5;
-        signsMoveSpeed += 4;
-
-        setTimeout(() => {
-          coinInfo.visible = true;
-          danger.style.opacity = 1;
-          blueCarMoveSpeed -= 7;
-          treesMoveSpeed -= 5;
-          signsMoveSpeed -= 4;
-
-          blueCar.classList.remove('car--boosting');
-
-          setTimeout(() => {
-            dangerInfo.visible = true;
-          }, 1000);
-        }, 2000);
-      }
-
-      if (arrowBInfo.visible && hasCollision(blueCarInfo, arrowBInfo)) {
-        spawnPopLabel(arrowB, 'BOOST!', 'boost');
-        arrowBInfo.visible = false;
-        danger.style.opacity = 0.2;
-        dangerInfo.visible = false;
-        if (Sounds.isPlaying) { Sounds.play("arrow") };
-
-        blueCar.classList.add('car--boosting');
-
-        blueCarMoveSpeed += 7;
-        treesMoveSpeed += 5;
-        signsMoveSpeed += 4;
-
-        setTimeout(() => {
-          danger.style.opacity = 1;
-          blueCarMoveSpeed -= 7;
-          treesMoveSpeed -= 5;
-          signsMoveSpeed -= 4;
-          blueCar.classList.remove('car--boosting');
-
-          setTimeout(() => {
-            dangerInfo.visible = true;
-          }, 1000);
-        }, 2000);
-      }
-
-      animationId = requestAnimationFrame(startGame);
     }
+
+    elementAnimation(dangerElem, dangerInfo, 3000);
+    if (dangerInfo.visible && hasCollision(blueCarInfo, dangerInfo)) {
+      finishGame();
+      return;
+    }
+
+    if (state.speedLevel > 1 && blueCarMoveSpeed < 6) {
+      blueCarMoveSpeed = 4.5;
+    }
+
+    if (Sounds.isPlaying) Sounds.play('main');
+
+    animationId = requestAnimationFrame(startGame);
   }
+
 
   function finishGame() {
     isPause = true;
     cancelAnimationFrame(animationId);
     stopCarAnimations();
+    if (carMagnetIndicator) carMagnetIndicator.style.display = 'none';
+    magnetActive = false;
+    clearTimeout(magnetTimeout);
+    parkAllExtraCoins();
 
     const state = Storage.get();
 
     if (state.extraLives > 0) {
       if (confirm('Вы разбились! Использовать "Второй шанс" чтобы продолжить?')) {
-        Storage.spendCoins(0); // Dummy save, we need to reduce extraLives
         state.extraLives--;
         Storage.save(state);
-        // Сбрасываем позицию опасности
         dangerInfo.coords.y -= 1500;
         dangerInfo.visible = false;
-        danger.style.display = 'none';
+        dangerElem.style.display = 'none';
         isPause = false;
         animationId = requestAnimationFrame(startGame);
-        return; // Возвращаемся в игру
+        return;
       }
     }
 
@@ -445,26 +446,26 @@ import { initShop, applySkin } from "./utils/shop.js";
     setTimeout(() => {
       Storage.addCoins(score);
       const currentState = Storage.get();
-
       backdropEndGame.style.display = 'flex';
       const scoreEndGame = backdropEndGame.querySelector('[data-js-end-game-score]');
-      
       scoreEndGame.innerHTML = `${score} <br><span style="font-size: 1rem; color: gold;">Total Coins: ${currentState.totalCoins}</span>`;
-      
       gameScoreWrapper.style.display = 'none';
       gameButton.style.display = 'none';
     }, 300);
   }
 
-  const welcomeScreen = document.querySelector('[data-js-welcome-screen]');
-  const welcomeStartButton = document.querySelector('[data-js-start-game]');
-  
-  welcomeStartButton.addEventListener("click", () => {
+  const welcomeScreen       = document.querySelector('[data-js-welcome-screen]');
+  const welcomeStartButton  = document.querySelector('[data-js-start-game]');
+  carMagnetIndicator        = document.querySelector('[data-js-car-magnet]');
+  const gameButton          = document.querySelector('[data-js-start-game-button]');
+  const musicToggle         = document.querySelector('[data-js-sound-button]');
+
+  welcomeStartButton.addEventListener('click', () => {
     welcomeScreen.style.display = 'none';
     isPause = false;
     animationId = requestAnimationFrame(startGame);
-    gameButton.children[1].classList.remove("visually-hidden");
-    gameButton.children[0].classList.add("visually-hidden");
+    gameButton.children[1].classList.remove('visually-hidden');
+    gameButton.children[0].classList.add('visually-hidden');
   });
 
   if (sessionStorage.getItem('skipWelcome') === 'true') {
@@ -472,35 +473,30 @@ import { initShop, applySkin } from "./utils/shop.js";
     welcomeStartButton.click();
   }
 
-  // Init Shop
   initShop();
   applySkin(Storage.get().selectedCar);
 
-  const gameButton = document.querySelector('[data-js-start-game-button]');
-  gameButton.addEventListener("click", () => {
+  gameButton.addEventListener('click', () => {
     isPause = !isPause;
     if (isPause) {
       cancelAnimationFrame(animationId);
       stopCarAnimations();
-      gameButton.children[1].classList.add("visually-hidden");
-      gameButton.children[0].classList.remove("visually-hidden");
+      gameButton.children[1].classList.add('visually-hidden');
+      gameButton.children[0].classList.remove('visually-hidden');
     } else {
       animationId = requestAnimationFrame(startGame);
-      gameButton.children[1].classList.remove("visually-hidden");
-      gameButton.children[0].classList.add("visually-hidden");
+      gameButton.children[1].classList.remove('visually-hidden');
+      gameButton.children[0].classList.add('visually-hidden');
     }
   });
 
-  const musicToggle = document.querySelector('[data-js-sound-button]');
-
-  musicToggle.addEventListener("click", () => {
+  musicToggle.addEventListener('click', () => {
     Sounds.toggleMute();
-
-    musicToggle.children[0].classList.toggle("visually-hidden");
-    musicToggle.children[1].classList.toggle("visually-hidden");
+    musicToggle.children[0].classList.toggle('visually-hidden');
+    musicToggle.children[1].classList.toggle('visually-hidden');
   });
 
-  restartButton.addEventListener("click", () => {
+  restartButton.addEventListener('click', () => {
     sessionStorage.setItem('skipWelcome', 'true');
     window.location.reload();
   });

@@ -25,7 +25,6 @@ body.screen-shake {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Полупрозрачный тёмный оверлей с blur */
     background: rgba(10, 10, 20, 0.55);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);

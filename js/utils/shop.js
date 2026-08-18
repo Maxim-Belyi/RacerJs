@@ -6,7 +6,7 @@ export const SHOP_ITEMS = [
     type: 'skin',
     name: 'Red Car',
     desc: 'Stylish red paint job',
-    price: 50,
+    price: 1,
     cssClass: 'shop-item__icon--red',
     carColor: 'red',
   },
@@ -15,7 +15,7 @@ export const SHOP_ITEMS = [
     type: 'skin',
     name: 'Green Car',
     desc: 'Eco-friendly green paint',
-    price: 100,
+    price: 1,
     cssClass: 'shop-item__icon--green',
     carColor: 'green',
   },
@@ -24,7 +24,7 @@ export const SHOP_ITEMS = [
     type: 'skin',
     name: 'Gold Car',
     desc: 'Premium gold finish',
-    price: 250,
+    price: 1,
     cssClass: 'shop-item__icon--gold',
     carColor: 'gold',
   },
@@ -33,21 +33,21 @@ export const SHOP_ITEMS = [
     type: 'upgrade',
     name: 'Engine Tuning',
     desc: 'Increases maneuverability (Left/Right speed)',
-    price: 150,
+    price: 1,
   },
   {
     id: 'consumable_life',
     type: 'consumable',
     name: 'Extra Life',
     desc: 'Continue game after a crash (Max 3)',
-    price: 100,
+    price: 1,
   },
   {
     id: 'unlock_magnet',
     type: 'unlock',
     name: 'Coin Magnet',
     desc: 'Spawns magnets on the road. Collecting it gives x3 coins!',
-    price: 300,
+    price: 1,
   }
 ];
 
@@ -95,7 +95,7 @@ export function initShop() {
           if (isSelected) buttonClass += ' shop-item__button--selected';
         }
       } else if (item.type === 'upgrade' && item.id === 'upgrade_speed') {
-        isBought = state.speedLevel > 1; // Simplify to 1 upgrade for now
+        isBought = state.speedLevel > 1; 
         if (isBought) {
           buttonText = 'Maxed';
           disabled = true;
@@ -176,17 +176,16 @@ export function initShop() {
 }
 
 export function applySkin(carColor) {
-    const carImg = document.querySelector('.car__blue img');
-    if (!carImg) return;
+    const carContainer = document.querySelector('.car__blue');
+    if (!carContainer) return;
     
-    // Reset filters
-    carImg.style.filter = 'none';
+    carContainer.style.setProperty('--car-filter', 'none');
     
     if (carColor === 'red') {
-        carImg.style.filter = 'hue-rotate(150deg) saturate(1.5)';
+        carContainer.style.setProperty('--car-filter', 'hue-rotate(150deg) saturate(1.5)');
     } else if (carColor === 'green') {
-        carImg.style.filter = 'hue-rotate(270deg) saturate(1.2)';
+        carContainer.style.setProperty('--car-filter', 'hue-rotate(270deg) saturate(1.2)');
     } else if (carColor === 'gold') {
-        carImg.style.filter = 'sepia(1) saturate(5) hue-rotate(-20deg)';
+        carContainer.style.setProperty('--car-filter', 'sepia(1) saturate(5) hue-rotate(-20deg)');
     }
 }
