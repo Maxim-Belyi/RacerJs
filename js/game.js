@@ -412,6 +412,23 @@ import { Sounds } from "./utils/sound.js";
     }, 300);
   }
 
+  // Welcome Screen logic
+  const welcomeScreen = document.querySelector('[data-js-welcome-screen]');
+  const welcomeStartButton = document.querySelector('[data-js-start-game]');
+  
+  welcomeStartButton.addEventListener("click", () => {
+    welcomeScreen.style.display = 'none';
+    isPause = false;
+    animationId = requestAnimationFrame(startGame);
+    gameButton.children[1].classList.remove("visually-hidden");
+    gameButton.children[0].classList.add("visually-hidden");
+  });
+
+  if (sessionStorage.getItem('skipWelcome') === 'true') {
+    sessionStorage.removeItem('skipWelcome');
+    welcomeStartButton.click();
+  }
+
   const gameButton = document.querySelector('[data-js-start-game-button]');
   gameButton.addEventListener("click", () => {
     isPause = !isPause;
@@ -437,6 +454,7 @@ import { Sounds } from "./utils/sound.js";
   });
 
   restartButton.addEventListener("click", () => {
+    sessionStorage.setItem('skipWelcome', 'true');
     window.location.reload();
   });
 })();
