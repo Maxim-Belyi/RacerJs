@@ -43,6 +43,33 @@ import { Sounds } from "./utils/sound.js";
   let roadMarkingOffset = 0;
   const MARKING_REPEAT = 80; // шаг паттерна разметки в px
 
+  /**
+   * Создаёт плавающий текст-лейбл в точке элемента и удаляет его после анимации.
+   * @param {HTMLElement} elem  — знак, на котором произошла коллизия
+   * @param {string} text       — текст лейбла ('+1', 'BOOST!')
+   * @param {string} modifier   — CSS-модификатор ('coin' | 'boost')
+   */
+  function spawnPopLabel(elem, text, modifier) {
+    // Pop-анимация на img внутри знака
+    // (не на самом div — там inline transform от JS имеет приоритет над CSS-анимацией)
+    const img = elem.querySelector('img');
+    img.classList.add('pop-collect');
+    img.addEventListener('animationend', () => {
+      elem.style.display = 'none';
+      img.classList.remove('pop-collect');
+    }, { once: true });
+
+    // Плавающий текст в позиции знака
+    const rect = elem.getBoundingClientRect();
+    const label = document.createElement('div');
+    label.className = `pop-label pop-label--${modifier}`;
+    label.textContent = text;
+    label.style.left = (rect.left + rect.width / 2) + 'px';
+    label.style.top  = (rect.top  - 8) + 'px';
+    document.body.appendChild(label);
+    label.addEventListener('animationend', () => label.remove(), { once: true });
+  }
+
   const blueCarInfo = {
     ...createElementInfo(blueCar),
     moveSpeed: blueCarMoveSpeed,
@@ -236,7 +263,7 @@ import { Sounds } from "./utils/sound.js";
       if (coinInfo.visible && hasCollision(blueCarInfo, coinInfo)) {
         score++;
         gameScoreValue.innerText = score;
-        coin.style.display = "none";
+        spawnPopLabel(coin, '+1', 'coin');
         coinInfo.visible = false;
 
         if (Sounds.isPlaying) { Sounds.play("coin"); }
@@ -251,14 +278,14 @@ import { Sounds } from "./utils/sound.js";
       if (coinAltInfo.visible && hasCollision(blueCarInfo, coinAltInfo)) {
         score++;
         gameScoreValue.innerText = score;
-        coinAlt.style.display = "none";
+        spawnPopLabel(coinAlt, '+1', 'coin');
         coinAltInfo.visible = false;
 
         if (Sounds.isPlaying) { Sounds.play("coin"); }
       }
 
       if (arrowInfo.visible && hasCollision(blueCarInfo, arrowInfo)) {
-        arrow.style.display = "none";
+        spawnPopLabel(arrow, 'BOOST!', 'boost');
         arrowInfo.visible = false;
         danger.style.opacity = 0.2;
         dangerInfo.visible = false;
