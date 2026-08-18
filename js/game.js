@@ -35,6 +35,7 @@ import { getCoords } from "./utils/get-coords.js";
 import { Sounds } from "./utils/sound.js";
 import { initShop, applySkin } from "./utils/shop.js";
 import { runCountdown } from './utils/countdown.js';
+import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/ai-car.js';
 
 (function () {
   let isPause = true;
@@ -46,6 +47,8 @@ import { runCountdown } from './utils/countdown.js';
   let blueCarMoveSpeed = 3;
   let treesMoveSpeed = 7;
   let signsMoveSpeed = 5;
+
+  const aiCars = [];
 
   const road = document.querySelector('[data-js-road]');
   const dangerElem = danger; 
@@ -410,6 +413,29 @@ import { runCountdown } from './utils/countdown.js';
       blueCarMoveSpeed = 4.5;
     }
 
+    const coinsForAi = [
+      { element: coin,    info: coinInfo    },
+      { element: coinAlt, info: coinAltInfo },
+      { element: coinB,   info: coinBInfo   },
+      { element: coinC,   info: coinCInfo   },
+    ];
+
+    aiCars.forEach(ai => {
+      ai.update(blueCarInfo.coords.y, dangerInfo, coinsForAi);
+      resolveAiPlayerCollision(ai, blueCarInfo, blueCar, roadWidth);
+
+      if (ai.overlaps(dangerInfo)) ai.stun();
+
+      coinsForAi.forEach(c => {
+        if (c.info.visible && ai.overlaps(c.info)) {
+          c.info.visible = false;
+          c.element.style.display = 'none';
+        }
+      });
+    });
+
+    if (aiCars.length >= 2) resolveAiAiCollision(aiCars[0], aiCars[1]);
+
     if (Sounds.isPlaying) Sounds.play('main');
 
     animationId = requestAnimationFrame(startGame);
@@ -465,6 +491,15 @@ import { runCountdown } from './utils/countdown.js';
   welcomeStartButton.addEventListener('click', () => {
     welcomeScreen.style.display = 'none';
     runCountdown(() => {
+      const aiElements = [...document.querySelectorAll('[data-js-ai-car]')];
+      aiCars.length = 0;
+      const startRatios = [0.1, 0.68];
+      aiElements.forEach((el, i) => {
+        const ai = new AiCar(el, roadWidth);
+        ai.place(roadWidth * startRatios[i], blueCarInfo.coords.y);
+        aiCars.push(ai);
+      });
+
       isPause = false;
       animationId = requestAnimationFrame(startGame);
       gameButton.children[1].classList.remove('visually-hidden');
