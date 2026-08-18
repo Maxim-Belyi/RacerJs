@@ -287,11 +287,21 @@ import { Sounds } from "./utils/sound.js";
   function finishGame() {
     cancelAnimationFrame(animationId);
     stopCarAnimations();
-    backdropEndGame.style.display = "initial";
-    const scoreEndGame = backdropEndGame.querySelector('[data-js-end-game-score]');
-    scoreEndGame.innerText = score;
-    gameScoreWrapper.style.display = "none";
-    gameButton.style.display = "none";
+
+    // Встряска экрана — применяем к body (overflow:hidden уже стоит)
+    document.body.classList.add('screen-shake');
+    document.body.addEventListener('animationend', () => {
+      document.body.classList.remove('screen-shake');
+    }, { once: true });
+
+    // Показываем экран Game Over с небольшой задержкой — после shake
+    setTimeout(() => {
+      backdropEndGame.style.display = 'flex';
+      const scoreEndGame = backdropEndGame.querySelector('[data-js-end-game-score]');
+      scoreEndGame.innerText = score;
+      gameScoreWrapper.style.display = 'none';
+      gameButton.style.display = 'none';
+    }, 300);
   }
 
   const gameButton = document.querySelector('[data-js-start-game-button]');
