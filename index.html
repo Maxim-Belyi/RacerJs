@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car game</title>
+  <script type="module" crossorigin src="./assets/index-COHnps_o.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-6tIbtVK3.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="road" data-js-road>
+            <div class="road-marking" data-js-road-marking></div>
+
+            <div class="backdrop end-game" data-js-end-game-backdrop>
+                <div class="end-game__wrapper">
+                    <div class="end-game__text">
+                        <p>Total score: <span class="end-game__score" data-js-end-game-score>0</span></p>
+                    </div>
+                    <button class="button end-game__button" type="button" data-js-end-game-button>Restart</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="car car__blue" data-js-car>
+            <img src="./assets/car-D3UXI61Z.png" alt="">
+        </div>
+
+        <div class="tree tree-1" data-js-tree>
+            <img src="./assets/tree1-CNx8XysO.png" alt="">
+        </div>
+
+        <div class="tree tree-2" data-js-tree>
+            <img src="./assets/tree2-CLrwSjcC.png" alt="">
+        </div>
+
+        <div class="tree tree-3" data-js-tree>
+            <img src="./assets/tree3-B0ZNgNa8.png" alt="">
+        </div>
+
+        <div class="tree tree-4" data-js-tree>
+            <img src="./assets/tree2-CLrwSjcC.png" alt="">
+        </div>
+
+        <div class="tree tree-5" data-js-tree>
+            <img src="./assets/tree1-CNx8XysO.png" alt="">
+        </div>
+
+        <div class="tree tree-6" data-js-tree>
+            <img src="./assets/tree3-B0ZNgNa8.png" alt="">
+        </div>
+
+        <div class="signs signs__arrow arrow" data-js-arrow>
+            <img src="./assets/arrow-zsY2k3xt.png" alt="">
+        </div>
+
+        <div class="signs signs__danger danger" data-js-danger>
+            <img src="./assets/danger-CWSsc-VS.png" alt="">
+        </div>
+
+        <div class="signs signs__coin coin" data-js-coin>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
+        <div class="signs signs__coin-alt coin-alt" data-js-coin-alt>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
+        <div class="signs signs__coin coin-b" data-js-coin-b>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
+        <div class="signs signs__coin-alt coin-c" data-js-coin-c>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
+        <div class="signs signs__arrow arrow-b" data-js-arrow-b>
+            <img src="./assets/arrow-zsY2k3xt.png" alt="">
+        </div>
+
+        <div class="game-score" data-js-game-score-wrapper>
+            <p class="game-score__title">Your score:</p>
+            <p class="game-score__value" data-js-game-score-value>0</p>
+        </div>
+
+        <div class="button-wrapper">
+            <button class="button button__game" type="button" data-js-start-game-button>
+                <img class="button__pause" src="./assets/pause-Cz2YUdhI.png" alt="">
+                <img class="button__play visually-hidden" src="./assets/play-CvH9sVH5.png" alt="">
+            </button>
+
+            <button class="button__sound button" data-js-sound-button>
+                <img class="button__sound-on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAADr0lEQVR4Ae3BXWiVZQAA4IdvLygxQkJi0CG8GHmIUcOEDIaNMLKSEDmRQwUvDLwQ8sLYLgQRDRUEkxKMigyLU3gku0uagTBFwcguiim7GLFgF4smGA36kAbf4N1rTnZ+dBfteSxa9D/XpvU24DwGcAM31W8z9uEJXMMdc2jTWhWcwWNox1ocU5/VOI+nsR6P4rw5ZFqngiqCqKR+nVK7MWAOmdaooIqged9hTOoQ1ruHTPMqqCJojUm8jEmp0+hwlzbNqaCKYG773d96HMJKXMYdTOAqtiJTeASd+NosbRpXQRXB/e03t05cQhdewpP4VmEU/2CdqIyrGDEj05gKqgiaU0YQbcdB0VFckjpmlkz9KqgiaN4ghqX6sU4hx27kojI2mpGpTwVVBK0xhVcxLgr4DEsVruFLqX4zMvNXQRVB40o4iF0ICqN4E7mohL2iw1Jr0GVam/mpoIqgfvtFV7EJr2EVzuAOfsMSrBU9g48whQm8gE7Rn/ihTVTCG1iFbnSjGxvwAYLG7FfowGHRU1iCQYXL2IF2haW4hSHRJtHjOBEUDmAAwYMzjot4UdSPc7iCKRzBMdFbOKxwDjmCQhkdGXZiL4IHbzPGpQ6JTmFK1I2ywm38KNWT4R0Pzzi2SfWiS2ESF6R6RUNS3RnKHq5BXJKqiAalVouGpTozC+OUVI/oulRZNCLVkVkYQ1LPikalSqJRqVJmYYxKLRdNmL+QWRi5ueXqkFkYK6T+EHWYvzyzMHqlrotKUmOiFVJjmYWxRWpI1C01LOqUGs9ww8PVi16pc6IeqWuistRIhvc9PB04LXUR1xXa8brUoKhH6lqGk3gPuQfvNEpSA6LNaBf9jBGFdjwnNRQU9uIkehGkStiHoDnLsU7qOK4oBPRLfSXaiCC6gYkgGsMX7m0YVQSNm8ANrFS4gD2i3egUTeKkaKtUzbRgfmoKVQSNW4ddmMCHyBW6cEDqBCYVuvCK1CnTgvmrKVQRNGYMA1IdOIOlolEcFO2RuoQR0zL1qaEPudZYhjMoi3K8jSmF1dgiddSMTP1q6EOuedvRI3UEgwoBxxBEv+CcGZnG1NCHXHNyqc+xV7QHPVK7zZJpXA19yDXuE5zFLXyKHaJeHJA6i0GzBM2pKVQR1G8KFf9VxjcIonHscpdM82roQ641luJ7LJPahnF3ybRGDX3INW8NSlLvYtA9ZFqnhj7kot/VbxiTouM4ag5tWutX/ITn8Td24qb63MZ5/IWPcdiiRYvm9C+bwddoQRO+KwAAAABJRU5ErkJggg=="></img>
+                <img class="button__sound-off visually-hidden" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAACeUlEQVR4AdXBP2hcdQAA4O9+93PLUFDoCUfolgwZMmTS015BcOlww4NwdRGL2M3VISVDHJwFLQHHylN7SAq6tZDAZeuQoYJDukiHZutwQ5EHevAKryFnvD/v5XLfV1O+Du7JfY7fVCgoV4IHaKCBeyoWlCdBiqjQVLGgHAlSRBcsmF2CFNEcBLNJkCKak2B6CVJEcxRMJ0GKaM6CySVIEV0CwWQSpIguiWB8CVJEl0gwngQpoksmKjTRRnRaE9uILqEot4OvEC2YiDvYsqACvrTAAlYtsGDBBQsuWHDBggsWXDQ/6+jgfayhIfcCT3GIPRw5R1StP5zVxjbaRmuggY+wjX3cRd8IdXTxjvId4wYGckv4Dt/imvFdw2do4DEyb6gjw03leoWPcSzXwEN0TG8DbTzA316r4wnewnsIynEXPbklPETL7JbxIVJkhmoKTbQRndbENqLxPMMqMrkfcFu5dnHHUFR4jvtG+xMpov/3DTK5Fm4r3xe4j34wnh66yJxvgJ8UdlRnx1Awvh66yPy33zGQW0dbddpYCybTQxeZ0fYVOqqXBJProYvMWU8U2qrXiqbTk0sRFZ4rrBgtw884Np5VbBptJZpeTy5FlHuh0DDaj/jU5Dad1Qxm00MXmfFFJYpm15NLsYSB3AmuOusT/INnxrOCTaOd1JTnCl4q7OO6aj0OyvPSafuq1w+qs6d6e0F1jnCgOgc4Cqq1pTpbhuqq9RfexYZy7eJ7Q3XVe4QbWFaOQ9xCZqiuehl+xQdYNptD3MTAa3UX4xV+wdvYMJ1d3MLAG2ouXgtf47rxHGALfSPUzM86OmhhDVflTvAUfezhyDn+Be7Ke69Yc3q1AAAAAElFTkSuQmCC"></img>
+            </button>
+        </div>
+
+        <div class="button-controls-wrapper__left">
+            <button class="button-controls__left button" data-js-left-control>
+                <img src="data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAAGNbWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAsaWxvYwAAAABEAAACAAEAAAABAAACzgAAACAAAgAAAAEAAAG1AAABGQAAAEJpaW5mAAAAAAACAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAAAaaW5mZQIAAAAAAgAAYXYwMUFscGhhAAAAABppcmVmAAAAAAAAAA5hdXhsAAIAAQABAAAAw2lwcnAAAACdaXBjbwAAABRpc3BlAAAAAAAAADAAAAAwAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABNjb2xybmNseAACAAIABoAAAAAOcGl4aQAAAAABCAAAAAxhdjFDgQAcAAAAADhhdXhDAAAAAHVybjptcGVnOm1wZWdCOmNpY3A6c3lzdGVtczphdXhpbGlhcnk6YWxwaGEAAAAAHmlwbWEAAAAAAAAAAgABBAECgwQAAgQBBYYHAAABQW1kYXQSAAoGGBVvvYVAMowCHICmkUDdL94Cpafz9tTJRqg3YATLOwfT5q2fEKWbHVlbqe+0QeCVXPoEXnR2BpRvjI0Bmn9c65wD7UuNi332OsXwyraaKtYy7GSM/hb0nk3XLIy5MZ39jMtbyiBHxo5e5uNhELtpI1EynrlEHwJMbgoocMAMg2JBKUYXJi1DlFHBflI9yWjnDR3mtyuVYRm8bQadsihrop1vZ2iJPidG+UHfMXJYgnK5hNT3xurDBzVafbVLlTAa1MBtjjv9AjSDbQV7NsA8GCVvDcymqKHgvnMuF8rZr7flGBbWjBhBhb5+pwzeH1QTalb4UQtUsQJyLjcLQ68BEqAB9e6jOPmJLdkN/cHZAqz9xZaQiBIACgkYFW+9ggQEDQgyERyAKaaaRAC023p/l1ahOuuD" alt="" width="48" height="48">
+            </button>
+
+            <button class="button-controls__down button" data-js-down-control>
+                <img src="data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAAGNbWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAsaWxvYwAAAABEAAACAAEAAAABAAACzgAAACAAAgAAAAEAAAG1AAABGQAAAEJpaW5mAAAAAAACAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAAAaaW5mZQIAAAAAAgAAYXYwMUFscGhhAAAAABppcmVmAAAAAAAAAA5hdXhsAAIAAQABAAAAw2lwcnAAAACdaXBjbwAAABRpc3BlAAAAAAAAADAAAAAwAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABNjb2xybmNseAACAAIABoAAAAAOcGl4aQAAAAABCAAAAAxhdjFDgQAcAAAAADhhdXhDAAAAAHVybjptcGVnOm1wZWdCOmNpY3A6c3lzdGVtczphdXhpbGlhcnk6YWxwaGEAAAAAHmlwbWEAAAAAAAAAAgABBAECgwQAAgQBBYYHAAABQW1kYXQSAAoGGBVvvYVAMowCHICmkUDdL94Cpafz9tTJRqg3YATLOwfT5q2fEKWbHVlbqe+0QeCVXPoEXnR2BpRvjI0Bmn9c65wD7UuNi332OsXwyraaKtYy7GSM/hb0nk3XLIy5MZ39jMtbyiBHxo5e5uNhELtpI1EynrlEHwJMbgoocMAMg2JBKUYXJi1DlFHBflI9yWjnDR3mtyuVYRm8bQadsihrop1vZ2iJPidG+UHfMXJYgnK5hNT3xurDBzVafbVLlTAa1MBtjjv9AjSDbQV7NsA8GCVvDcymqKHgvnMuF8rZr7flGBbWjBhBhb5+pwzeH1QTalb4UQtUsQJyLjcLQ68BEqAB9e6jOPmJLdkN/cHZAqz9xZaQiBIACgkYFW+9ggQEDQgyERyAKaaaRAC023p/l1ahOuuD" alt="" width="48" height="48">
+            </button>
+        </div>
+
+        <div class="button-controls-wrapper__right">
+            <button class="button-controls__top button" data-js-top-control>
+                <img src="data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAAGNbWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAsaWxvYwAAAABEAAACAAEAAAABAAACzgAAACAAAgAAAAEAAAG1AAABGQAAAEJpaW5mAAAAAAACAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAAAaaW5mZQIAAAAAAgAAYXYwMUFscGhhAAAAABppcmVmAAAAAAAAAA5hdXhsAAIAAQABAAAAw2lwcnAAAACdaXBjbwAAABRpc3BlAAAAAAAAADAAAAAwAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABNjb2xybmNseAACAAIABoAAAAAOcGl4aQAAAAABCAAAAAxhdjFDgQAcAAAAADhhdXhDAAAAAHVybjptcGVnOm1wZWdCOmNpY3A6c3lzdGVtczphdXhpbGlhcnk6YWxwaGEAAAAAHmlwbWEAAAAAAAAAAgABBAECgwQAAgQBBYYHAAABQW1kYXQSAAoGGBVvvYVAMowCHICmkUDdL94Cpafz9tTJRqg3YATLOwfT5q2fEKWbHVlbqe+0QeCVXPoEXnR2BpRvjI0Bmn9c65wD7UuNi332OsXwyraaKtYy7GSM/hb0nk3XLIy5MZ39jMtbyiBHxo5e5uNhELtpI1EynrlEHwJMbgoocMAMg2JBKUYXJi1DlFHBflI9yWjnDR3mtyuVYRm8bQadsihrop1vZ2iJPidG+UHfMXJYgnK5hNT3xurDBzVafbVLlTAa1MBtjjv9AjSDbQV7NsA8GCVvDcymqKHgvnMuF8rZr7flGBbWjBhBhb5+pwzeH1QTalb4UQtUsQJyLjcLQ68BEqAB9e6jOPmJLdkN/cHZAqz9xZaQiBIACgkYFW+9ggQEDQgyERyAKaaaRAC023p/l1ahOuuD" alt=""  width="48" height="48">
+            </button>
+
+            <button class="button-controls__right button" data-js-right-control>
+                <img src="data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAAGNbWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAsaWxvYwAAAABEAAACAAEAAAABAAACzgAAACAAAgAAAAEAAAG1AAABGQAAAEJpaW5mAAAAAAACAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAAAaaW5mZQIAAAAAAgAAYXYwMUFscGhhAAAAABppcmVmAAAAAAAAAA5hdXhsAAIAAQABAAAAw2lwcnAAAACdaXBjbwAAABRpc3BlAAAAAAAAADAAAAAwAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABNjb2xybmNseAACAAIABoAAAAAOcGl4aQAAAAABCAAAAAxhdjFDgQAcAAAAADhhdXhDAAAAAHVybjptcGVnOm1wZWdCOmNpY3A6c3lzdGVtczphdXhpbGlhcnk6YWxwaGEAAAAAHmlwbWEAAAAAAAAAAgABBAECgwQAAgQBBYYHAAABQW1kYXQSAAoGGBVvvYVAMowCHICmkUDdL94Cpafz9tTJRqg3YATLOwfT5q2fEKWbHVlbqe+0QeCVXPoEXnR2BpRvjI0Bmn9c65wD7UuNi332OsXwyraaKtYy7GSM/hb0nk3XLIy5MZ39jMtbyiBHxo5e5uNhELtpI1EynrlEHwJMbgoocMAMg2JBKUYXJi1DlFHBflI9yWjnDR3mtyuVYRm8bQadsihrop1vZ2iJPidG+UHfMXJYgnK5hNT3xurDBzVafbVLlTAa1MBtjjv9AjSDbQV7NsA8GCVvDcymqKHgvnMuF8rZr7flGBbWjBhBhb5+pwzeH1QTalb4UQtUsQJyLjcLQ68BEqAB9e6jOPmJLdkN/cHZAqz9xZaQiBIACgkYFW+9ggQEDQgyERyAKaaaRAC023p/l1ahOuuD" alt=""  width="48" height="48">
+            </button>
+        </div>
+
+    </div>
+</body>
+
+</html>
