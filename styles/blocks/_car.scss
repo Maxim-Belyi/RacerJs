@@ -1,9 +1,55 @@
 @use '../helpers' as *;
 
+/* Лёгкое дрожание на бусте */
+@keyframes boost-shake {
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(-2px); }
+    75%       { transform: translateX(2px); }
+}
+
+/* Пульсация свечения */
+@keyframes boost-glow {
+    0%, 100% {
+        filter:
+            drop-shadow(0 0 6px  rgba(80, 200, 255, 0.8))
+            drop-shadow(0 0 14px rgba(80, 200, 255, 0.4))
+            brightness(1.1);
+    }
+    50% {
+        filter:
+            drop-shadow(0 0 12px rgba(80, 200, 255, 1))
+            drop-shadow(0 0 28px rgba(80, 200, 255, 0.6))
+            brightness(1.25);
+    }
+}
+
 .car {
     &__blue {
         position: absolute;
         width: fluid(120, 30);
         transform: translate(310%, -25vh);
-        }
+    }
+}
+
+/* Состояние буста — вешается JS на 2 секунды */
+.car--boosting img {
+    animation:
+        boost-glow  0.4s ease-in-out infinite alternate,
+        boost-shake 0.12s linear infinite;
+}
+
+/* Шлейф скорости — полупрозрачная копия машины снизу */
+.car--boosting::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    /* Копируем img внутри через box-shadow не работает, используем filter + mask */
+    opacity: 0.25;
+    transform: translateY(18px) scaleY(0.85);
+    filter:
+        drop-shadow(0 0 8px rgba(80, 200, 255, 0.9))
+        blur(3px);
+    pointer-events: none;
+    z-index: -1;
 }

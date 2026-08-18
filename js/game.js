@@ -291,6 +291,9 @@ import { Sounds } from "./utils/sound.js";
         dangerInfo.visible = false;
         if (Sounds.isPlaying) { Sounds.play("arrow") };
 
+        // Визуальный шлейф буста
+        blueCar.classList.add('car--boosting');
+
         blueCarMoveSpeed += 7;
         treesMoveSpeed += 5;
         signsMoveSpeed += 4;
@@ -301,6 +304,9 @@ import { Sounds } from "./utils/sound.js";
           blueCarMoveSpeed -= 7;
           treesMoveSpeed -= 5;
           signsMoveSpeed -= 4;
+
+          // Убираем эффект буста
+          blueCar.classList.remove('car--boosting');
 
           setTimeout(() => {
             dangerInfo.visible = true;
