@@ -1,16 +1,19 @@
 const FRICTION = 0.87;
-const Y_FOLLOW = 0.06;
 const STEER_FORCE = 0.08;
 const MAX_VX = 5;
 const DANGER_FORCE = 7;
 const DANGER_X = 120;
 const DANGER_Y = 500;
-const COIN_X = 65;
-const COIN_Y = 280;
-const COIN_FORCE = 0.14;
+const ITEM_X = 80;
+const ITEM_Y = 320;
+const COIN_FORCE = 0.10;
+const ARROW_FORCE = 0.18;
 const RETARGET_MIN = 70;
 const RETARGET_MAX = 180;
-const STUN_FRAMES = 80;
+const STUN_FRAMES = 120;
+const STUN_SPEED_MULT = 0.15;
+const BOOST_SPEED_MULT = 1.8;
+const BOOST_DURATION = 2000;
 const SEP_FORCE = 9;
 
 export class AiCar {
@@ -24,31 +27,42 @@ export class AiCar {
     this.vx = 0;
     this.targetX = 0;
     this.retargetTimer = 0;
-    this.stunTimer = 0;
+    this.stunFrames = 0;
+    this.travelDist = 0;
+    this.modifier = 1.0;
+    this.boosting = false;
   }
 
-  place(x, y) {
+  place(x, y, syncTravelDist) {
     this.x = this._clamp(x);
     this.y = y;
     this.targetX = this.x;
+    this.travelDist = syncTravelDist;
     this._sync();
   }
 
-  update(playerY, dangerInfo, coins) {
-    this.y += (playerY - this.y) * Y_FOLLOW;
-
-    if (this.stunTimer > 0) {
-      this.stunTimer--;
+  update(playerTravelDist, playerY, baseSpeed, dangerInfo, coins, arrows) {
+    let speedFactor = this.modifier;
+    if (this.stunFrames > 0) {
+      this.stunFrames--;
+      speedFactor *= STUN_SPEED_MULT;
       this.vx += (Math.random() - 0.5) * 2.5;
-    } else {
+    } else if (this.boosting) {
+      speedFactor *= BOOST_SPEED_MULT;
+    }
+
+    this.travelDist += baseSpeed * speedFactor;
+
+    this.y = playerY + (playerTravelDist - this.travelDist);
+
+    if (this.stunFrames <= 0) {
       if (--this.retargetTimer <= 0) {
         this.retargetTimer = RETARGET_MIN + Math.random() * (RETARGET_MAX - RETARGET_MIN);
         this.targetX = Math.random() * (this.roadWidth - this.width);
       }
 
-      if (!this._steerToCoin(coins)) {
-        this._steerToTarget();
-      }
+      const steered = this._steerToArrow(arrows) || this._steerToCoin(coins);
+      if (!steered) this._steerToTarget();
 
       this._avoidDanger(dangerInfo);
     }
@@ -59,10 +73,16 @@ export class AiCar {
   }
 
   stun() {
-    if (this.stunTimer > 0) return;
-    this.stunTimer = STUN_FRAMES;
+    if (this.stunFrames > 0) return;
+    this.stunFrames = STUN_FRAMES;
     this.element.classList.add('ai-stunned');
-    setTimeout(() => this.element.classList.remove('ai-stunned'), 1200);
+    setTimeout(() => this.element.classList.remove('ai-stunned'), 1800);
+  }
+
+  boost() {
+    if (this.boosting) return;
+    this.boosting = true;
+    setTimeout(() => { this.boosting = false; }, BOOST_DURATION);
   }
 
   push(force) {
@@ -89,13 +109,29 @@ export class AiCar {
     this.vx += dx * STEER_FORCE * 0.05;
   }
 
+  _steerToArrow(arrows) {
+    if (!arrows) return false;
+    for (const a of arrows) {
+      if (!a.info.visible) continue;
+      const arrowCX = a.info.coords.x + a.info.width / 2;
+      const myCX = this.x + this.width / 2;
+      const dy = a.info.coords.y - this.y;
+      if (Math.abs(arrowCX - myCX) < ITEM_X * 1.5 && dy > -this.height && dy < ITEM_Y * 1.2) {
+        this.vx += (arrowCX - myCX) * ARROW_FORCE * 0.1;
+        return true;
+      }
+    }
+    return false;
+  }
+
   _steerToCoin(coins) {
+    if (!coins) return false;
     for (const c of coins) {
       if (!c.info.visible) continue;
       const coinCX = c.info.coords.x + c.info.width / 2;
       const myCX = this.x + this.width / 2;
       const dy = c.info.coords.y - this.y;
-      if (Math.abs(coinCX - myCX) < COIN_X && dy > -this.height && dy < COIN_Y) {
+      if (Math.abs(coinCX - myCX) < ITEM_X && dy > -this.height && dy < ITEM_Y) {
         this.vx += (coinCX - myCX) * COIN_FORCE * 0.1;
         return true;
       }

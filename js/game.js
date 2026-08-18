@@ -48,6 +48,9 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
   let treesMoveSpeed = 7;
   let signsMoveSpeed = 5;
 
+  let playerTravelDist = 0;
+  let playerBoostDelta = 0;
+
   const aiCars = [];
 
   const road = document.querySelector('[data-js-road]');
@@ -368,12 +371,14 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
         blueCarMoveSpeed += 7;
         treesMoveSpeed   += 5;
         signsMoveSpeed   += 4;
+        playerBoostDelta  = 4;
 
         setTimeout(() => {
           dangerElem.style.opacity = 1;
           blueCarMoveSpeed -= 7;
           treesMoveSpeed   -= 5;
           signsMoveSpeed   -= 4;
+          playerBoostDelta  = 0;
           blueCar.classList.remove('car--boosting');
           setTimeout(() => { dangerInfo.visible = true; }, 1000);
         }, 2000);
@@ -413,6 +418,9 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
       blueCarMoveSpeed = 4.5;
     }
 
+    playerTravelDist += signsMoveSpeed;
+    const aiBaseSpeed = signsMoveSpeed - playerBoostDelta;
+
     const coinsForAi = [
       { element: coin,    info: coinInfo    },
       { element: coinAlt, info: coinAltInfo },
@@ -420,8 +428,13 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
       { element: coinC,   info: coinCInfo   },
     ];
 
+    const arrowsForAi = [
+      { element: arrow,  info: arrowInfo  },
+      { element: arrowB, info: arrowBInfo },
+    ];
+
     aiCars.forEach(ai => {
-      ai.update(blueCarInfo.coords.y, dangerInfo, coinsForAi);
+      ai.update(playerTravelDist, blueCarInfo.coords.y, aiBaseSpeed, dangerInfo, coinsForAi, arrowsForAi);
       resolveAiPlayerCollision(ai, blueCarInfo, blueCar, roadWidth);
 
       if (ai.overlaps(dangerInfo)) ai.stun();
@@ -430,6 +443,14 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
         if (c.info.visible && ai.overlaps(c.info)) {
           c.info.visible = false;
           c.element.style.display = 'none';
+        }
+      });
+
+      arrowsForAi.forEach(a => {
+        if (a.info.visible && ai.overlaps(a.info)) {
+          ai.boost();
+          a.info.visible = false;
+          a.element.style.display = 'none';
         }
       });
     });
@@ -496,7 +517,7 @@ import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/a
       const startRatios = [0.1, 0.68];
       aiElements.forEach((el, i) => {
         const ai = new AiCar(el, roadWidth);
-        ai.place(roadWidth * startRatios[i], blueCarInfo.coords.y);
+        ai.place(roadWidth * startRatios[i], blueCarInfo.coords.y, playerTravelDist);
         aiCars.push(ai);
       });
 
