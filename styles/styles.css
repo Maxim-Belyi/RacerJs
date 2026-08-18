@@ -410,6 +410,37 @@ body {
   transform: translate(300px, -130vh);
 }
 
+@keyframes coin-glow {
+  0%   {
+    filter:
+      drop-shadow(0 0 4px gold)
+      brightness(1);
+  }
+  50%  {
+    filter:
+      drop-shadow(0 0 10px gold)
+      drop-shadow(0 0 22px rgba(255, 200, 0, 0.55))
+      brightness(1.35);
+  }
+  100% {
+    filter:
+      drop-shadow(0 0 4px gold)
+      brightness(1);
+  }
+}
+
+@keyframes coin-bob {
+  0%, 100% { transform: translateY(0)    scale(1); }
+  50%       { transform: translateY(-5px) scale(1.08); }
+}
+
+.signs__coin img,
+.signs__coin-alt img {
+  animation:
+    coin-glow 1.6s ease-in-out infinite,
+    coin-bob  1.6s ease-in-out infinite;
+}
+
 .game-score {
   display: flex;
   justify-content: space-around;

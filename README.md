@@ -17,18 +17,14 @@
 Динамическая сложность: Скорость игры постепенно увеличивается по мере набора очков.
 Уклонение от препятствий: Избегайте столкновений, чтобы проехать как можно дальше.
 Звуковое сопровождение: В игре есть фоновая музыка и звуковые эффекты с возможностью их отключения.
-<br>
-Проект сделан по мастер классу <a href="https://www.youtube.com/watch?v=26xVf5FcLPA&list=PL6NCtzCz-4pQGZtf83TkzQQFmppJGng8V&ab_channel=%D0%9A%D0%B0%D0%BA%D0%B8%D0%B5-%D1%82%D0%BE%D1%83%D1%80%D0%BE%D0%BA%D0%B8%5BFrontend%5D">Какие то уроки [Frontend]</a>
-с добавлением собственных фич
-<br>
+
 <br>
 ### 🛠️ Стек технологий
 
-![HTML5](https://camo.githubusercontent.com/c587a3bc846443ec1d1675ad4dc630495fc7ec473e74cbce391552a9c53b857c/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d48544d4c352d6f72616e67653f6c6f676f3d68746d6c35266c6f676f436f6c6f723d7768697465)
-![CSS3](https://camo.githubusercontent.com/a5aeb17d7ec1bb24ff43862059cc5a97e3b60e4ff27057ed10ba4925603f9f0f/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d435353332d626c75653f6c6f676f3d63737333266c6f676f436f6c6f723d7768697465)
-![Sass](https://camo.githubusercontent.com/74d5655386be146493165f4b1e4a0b455621f62c3c6b256efe90895071bb2c3a/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d534353532d4343363639393f6c6f676f3d73617373266c6f676f436f6c6f723d7768697465)
-![JavaScript](https://camo.githubusercontent.com/b28dbfaba05bd8a8a5bb5c4750fc77e1d754f92e571ce10ada92ef061aa31780/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2d4a6176615363726970742d79656c6c6f773f6c6f676f3d6a617661736372697074266c6f676f436f6c6f723d626c61636b)
-
+![HTML5](https://img.shields.io/badge/-HTML5-orange?logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/-CSS3-blue?logo=css3&logoColor=white)
+![Sass](https://img.shields.io/badge/-SCSS-CC6699?logo=sass&logoColor=white)
+![JavaScript](https://img.shields.io/badge/-JavaScript-yellow?logo=javascript&logoColor=black)
 <br>
 
 ### ⚙️ Установка и локальный запуск
