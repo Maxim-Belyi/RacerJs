@@ -22,9 +22,6 @@ import {
   controlTop,
   controlRight,
   roadWidth,
-  negativeRandom100,
-  negativeRandom500,
-  negativeRandom900,
   treesCoords,
 } from "./utils/variables.js";
 
@@ -93,6 +90,16 @@ import { Sounds } from "./utils/sound.js";
     const coordsTree = getCoords(tree);
     treesCoords.push(coordsTree);
   }
+
+  coinInfo.coords.y = -450;
+  coinAltInfo.coords.y = -800;
+  coinBInfo.coords.y = -1800;
+  coinCInfo.coords.y = -2400;
+
+  arrowInfo.coords.y = -2000;
+  arrowBInfo.coords.y = -4000;
+
+  dangerInfo.coords.y = -3000;
 
   function stopCarAnimations() {
     Object.values(blueCarInfo.move).forEach((id) => {
@@ -242,12 +249,12 @@ import { Sounds } from "./utils/sound.js";
     }
   }
 
-  function elementAnimation(elem, elemInfo, elemInitialYCoord) {
+  function elementAnimation(elem, elemInfo, trackLength) {
     let newYCoord = elemInfo.coords.y + signsMoveSpeed;
     let newXcoord = elemInfo.coords.x;
 
     if (newYCoord > window.innerHeight / 10) {
-      newYCoord = elemInitialYCoord;
+      newYCoord -= trackLength;
 
       const directionX = Math.random() * (roadWidth - elemInfo.width);
 
@@ -265,13 +272,13 @@ import { Sounds } from "./utils/sound.js";
   function startGame() {
     if (!isPause) {
       treesAnimation();
-      elementAnimation(coin, coinInfo, negativeRandom100);
-      elementAnimation(coinAlt, coinAltInfo, negativeRandom500);
-      elementAnimation(coinB, coinBInfo, negativeRandom100);
-      elementAnimation(coinC, coinCInfo, negativeRandom500);
-      elementAnimation(arrow, arrowInfo, negativeRandom500);
-      elementAnimation(arrowB, arrowBInfo, negativeRandom900);
-      elementAnimation(danger, dangerInfo, negativeRandom900);
+      elementAnimation(coin, coinInfo, 2400);
+      elementAnimation(coinAlt, coinAltInfo, 2400);
+      elementAnimation(coinB, coinBInfo, 2400);
+      elementAnimation(coinC, coinCInfo, 2400);
+      elementAnimation(arrow, arrowInfo, 4000);
+      elementAnimation(arrowB, arrowBInfo, 4000);
+      elementAnimation(danger, dangerInfo, 3000);
 
       console.log(blueCarInfo.coords.y)
       if (Sounds.isPlaying) { Sounds.play("main") };

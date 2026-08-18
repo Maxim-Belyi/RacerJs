@@ -29,11 +29,4 @@ export const road = document.querySelector('[data-js-road]');
 
 export const roadWidth = road.clientWidth;
 
-export let negativeRandom100 =
-    -window.innerHeight - Math.floor(Math.random() * (500 - 100) + 100);
-export let negativeRandom500 =
-    -window.innerHeight - Math.floor(Math.random() * (900 - 500) + 500);
-export let negativeRandom900 =
-    -window.innerHeight - Math.floor(Math.random() * (1200 - 900) + 900);
-
 export const treesCoords = [];

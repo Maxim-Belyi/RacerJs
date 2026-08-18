@@ -1,5 +1,5 @@
 
-<h1> <a href="https://maxim-belyi.github.io/pet_Car-Game/" target="_blank">
+<h1> <a href="https://maxim-belyi.github.io/RacerJs/" target="_blank">
 🏎️💨 Racer JS: Survival Racing </a> </h1>
 <br>
 <br>
@@ -18,6 +18,7 @@
 Уклонение от препятствий: Избегайте столкновений, чтобы проехать как можно дальше.
 Звуковое сопровождение: В игре есть фоновая музыка и звуковые эффекты с возможностью их отключения.
 
+<br>
 <br>
 ### 🛠️ Стек технологий
 
