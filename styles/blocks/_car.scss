@@ -58,6 +58,12 @@
             filter: grayscale(80%) sepia(50%) hue-rotate(-50deg) saturate(300%);
         }
     }
+    
+    &--invulnerable {
+        img:not(.car-magnet-indicator) {
+            animation: invulnerable-blink 0.3s infinite;
+        }
+    }
 }
 
 .ai-car {
@@ -148,4 +154,10 @@
     height: 60px;
     filter: drop-shadow(0 0 6px rgba(255, 0, 150, 0.8));
     animation: magnet-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes invulnerable-blink {
+    0%   { opacity: 1; filter: brightness(1); }
+    50%  { opacity: 0.5; filter: brightness(1.5) drop-shadow(0 0 10px rgba(255,255,255,0.8)); }
+    100% { opacity: 1; filter: brightness(1); }
 }

@@ -189,6 +189,19 @@
 
         <div class="countdown" data-js-countdown></div>
 
+        <div class="race-result" data-js-crash-modal>
+            <div class="race-result__inner">
+                <h2 class="race-result__title" style="color: #e74c3c;">💥 Авария!</h2>
+                <p style="text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: #fff;">Вы врезались в знак!</p>
+                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                    <button class="button" style="background: #27ae60; width: 100%;" type="button" data-js-crash-revive>
+                        ❤️ Возродиться (Осталось: <span data-js-crash-lives>0</span>)
+                    </button>
+                    <button class="button" style="background: #e74c3c; width: 100%;" type="button" data-js-crash-restart>Начать заново</button>
+                </div>
+            </div>
+        </div>
+
         <div class="race-result" data-js-race-result>
             <div class="race-result__inner">
                 <h2 class="race-result__title">🏁 Финиш !</h2>

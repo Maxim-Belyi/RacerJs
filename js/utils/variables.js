@@ -5,6 +5,13 @@ export const arrowInfo = createElementInfo(arrow);
 export const arrowB = document.querySelector('[data-js-arrow-b]');
 export const arrowBInfo = { ...createElementInfo(arrowB), visible: true };
 
+export const crashModal = document.querySelector('[data-js-crash-modal]');
+export const crashReviveBtn = document.querySelector('[data-js-crash-revive]');
+export const crashRestartBtn = document.querySelector('[data-js-crash-restart]');
+export const crashLivesText = document.querySelector('[data-js-crash-lives]');
+
+export const raceResultEl = document.querySelector('[data-js-race-result]');
+
 export const magnet = document.querySelector('[data-js-magnet]');
 export const magnetInfo = { ...createElementInfo(magnet), visible: false };
 

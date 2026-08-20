@@ -9,6 +9,10 @@ import {
   danger,
   gameScoreWrapper,
   gameScoreValue,
+  crashModal,
+  crashReviveBtn,
+  crashRestartBtn,
+  crashLivesText,
   backdropEndGame,
   restartButton,
   trees,
@@ -64,6 +68,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   let playerBoostDelta = 0;
   let playerSlowDownFrames = 0;
   let finishReached = false;
+  let isInvulnerable = false;
   let playerCarClass = null;
 
   const aiCars = [];
@@ -457,14 +462,14 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     }
 
     elementAnimation(dangerElem, dangerInfo, 3000, actualSignsSpeed);
-    if (dangerInfo.visible && hasCollision(blueCarInfo, dangerInfo)) {
+    if (!isInvulnerable && dangerInfo.visible && hasCollision(blueCarInfo, dangerInfo)) {
       finishGame();
       return;
     }
 
     for (let i = 0; i < cracks.length; i++) {
       elementAnimation(cracks[i], cracksInfo[i], 2000 + (i * 2500), actualSignsSpeed);
-      if (cracksInfo[i].visible && hasCollision(blueCarInfo, cracksInfo[i])) {
+      if (!isInvulnerable && cracksInfo[i].visible && hasCollision(blueCarInfo, cracksInfo[i])) {
         playerSlowDownFrames = 120;
         cracksInfo[i].visible = false;
         cracks[i].style.display = 'none';
@@ -555,21 +560,6 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     clearTimeout(magnetTimeout);
     parkAllExtraCoins();
 
-    const state = Storage.get();
-
-    if (state.extraLives > 0) {
-      if (confirm('Вы разбились! Использовать "Второй шанс" чтобы продолжить?')) {
-        state.extraLives--;
-        Storage.save(state);
-        dangerInfo.coords.y -= 1500;
-        dangerInfo.visible = false;
-        dangerElem.style.display = 'none';
-        isPause = false;
-        animationId = requestAnimationFrame(startGame);
-        return;
-      }
-    }
-
     document.body.classList.add('screen-shake');
     document.body.addEventListener('animationend', () => {
       document.body.classList.remove('screen-shake');
@@ -577,12 +567,16 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
     setTimeout(() => {
       Storage.addCoins(score);
-      const currentState = Storage.get();
-      backdropEndGame.style.display = 'flex';
-      const scoreEndGame = backdropEndGame.querySelector('[data-js-end-game-score]');
-      scoreEndGame.innerHTML = `${score} <br><span style="font-size: 1rem; color: gold;">Total Coins: ${currentState.totalCoins}</span>`;
-      gameScoreWrapper.style.display = 'none';
-      gameButton.style.display = 'none';
+      const state = Storage.get();
+      
+      crashLivesText.textContent = state.extraLives;
+      if (state.extraLives > 0) {
+        crashReviveBtn.style.display = 'block';
+      } else {
+        crashReviveBtn.style.display = 'none';
+      }
+      
+      crashModal.classList.add('visible');
     }, 300);
   }
 
@@ -616,6 +610,35 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
     raceResultEl.classList.add('visible');
   }
+
+  crashReviveBtn.addEventListener('click', () => {
+    const state = Storage.get();
+    if (state.extraLives > 0) {
+      state.extraLives--;
+      Storage.save(state);
+      
+      dangerInfo.coords.y -= 1500;
+      dangerInfo.visible = false;
+      dangerElem.style.display = 'none';
+      
+      crashModal.classList.remove('visible');
+      isInvulnerable = true;
+      blueCar.classList.add('car--invulnerable');
+      
+      setTimeout(() => {
+        isInvulnerable = false;
+        blueCar.classList.remove('car--invulnerable');
+      }, 2000);
+
+      isPause = false;
+      animationId = requestAnimationFrame(startGame);
+    }
+  });
+
+  crashRestartBtn.addEventListener('click', () => {
+    sessionStorage.setItem('skipWelcome', 'true');
+    window.location.reload();
+  });
 
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-js-restart]')) {
