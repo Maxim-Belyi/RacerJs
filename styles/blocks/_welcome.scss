@@ -23,7 +23,7 @@
 
         @include mobile {
             gap: rem(16);
-            padding: rem(20) rem(20);
+            padding: rem(15);
         }
     }
 
@@ -79,6 +79,19 @@
         0%, 100% { transform: scale(1); filter: brightness(1); }
         50% { transform: scale(1.1); filter: brightness(1.2); }
     }
+    
+    &__actions {
+        display: flex;
+        gap: rem(16);
+        margin-top: rem(8);
+        width: 100%;
+        justify-content: center;
+        
+        @include mobile {
+            flex-direction: column;
+            gap: rem(10);
+        }
+    }
 
     &__button {
         text-transform: uppercase;
@@ -94,6 +107,7 @@
             0 4px 15px rgba(0, 180, 219, 0.5),
             inset 0 1px 0 rgba(255, 255, 255, 0.2);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: 100%;
 
         &:hover {
             transform: scale(1.06);
@@ -104,6 +118,12 @@
 
         &:active {
             transform: scale(0.97);
+        }
+        
+        @include mobile {
+            padding: rem(12) rem(20);
+            font-size: rem(14);
+            letter-spacing: 1px;
         }
     }
 }
