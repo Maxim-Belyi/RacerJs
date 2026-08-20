@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car game</title>
-  <script type="module" crossorigin src="./assets/index-VkjR1b3D.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DbKID-Ka.css">
+  <script type="module" crossorigin src="./assets/index-Clk7RvQ5.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-B5Ur3E9c.css">
 </head>
 
 <body>
@@ -41,7 +41,7 @@
                             <span>Избегай аварий</span>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 16px; margin-top: 8px;">
+                    <div class="welcome-screen__actions">
                         <button class="button welcome-screen__button" type="button" data-js-start-game>Начать игру </button>
                         <button class="button welcome-screen__button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Магазин</button>
                     </div>
@@ -189,6 +189,19 @@
         </div>
 
         <div class="countdown" data-js-countdown></div>
+
+        <div class="race-result" data-js-crash-modal>
+            <div class="race-result__inner">
+                <h2 class="race-result__title" style="color: #e74c3c;">💥 Авария!</h2>
+                <p style="text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: #fff;">Вы врезались в знак!</p>
+                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                    <button class="button" style="background: #27ae60; width: 100%;" type="button" data-js-crash-revive>
+                        ❤️ Возродиться (Осталось: <span data-js-crash-lives>0</span>)
+                    </button>
+                    <button class="button" style="background: #e74c3c; width: 100%;" type="button" data-js-crash-restart>Начать заново</button>
+                </div>
+            </div>
+        </div>
 
         <div class="race-result" data-js-race-result>
             <div class="race-result__inner">
