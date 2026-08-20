@@ -1,8 +1,8 @@
 @use '../helpers' as *;
 
 .shop-modal {
-    display: none; // Toggled via JS
-    z-index: 30; // Above everything
+    display: none; 
+    z-index: 40;
 
     &__wrapper {
         display: flex;

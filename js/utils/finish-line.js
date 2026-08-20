@@ -1,4 +1,4 @@
-export const RACE_DISTANCE = 25000;
+export const RACE_DISTANCE = 18000;
 
 export class FinishLine {
   constructor(element, roadWidth) {
