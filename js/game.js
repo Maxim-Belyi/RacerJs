@@ -61,6 +61,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   let playerTravelDist = 0;
   let playerBoostDelta = 0;
   let finishReached = false;
+  let playerCarClass = null;
 
   const aiCars = [];
 
@@ -446,7 +447,9 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     }
 
     playerTravelDist += signsMoveSpeed;
-    const aiBaseSpeed = signsMoveSpeed - playerBoostDelta;
+    
+    const worldBaseSpeed = playerCarClass ? (signsMoveSpeed / playerCarClass.modifier) : signsMoveSpeed;
+    const aiBaseSpeed = worldBaseSpeed - playerBoostDelta;
 
     const coinsForAi = [
       { element: coin,    info: coinInfo    },
@@ -592,11 +595,11 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     welcomeScreen.style.display = 'none';
     runCountdown(() => {
       const state = Storage.get();
-      const carClass = getCarClass(state.selectedCar);
+      playerCarClass = getCarClass(state.selectedCar);
       
-      blueCarMoveSpeed = 3 * carClass.modifier;
-      treesMoveSpeed = 7 * carClass.modifier;
-      signsMoveSpeed = 5 * carClass.modifier;
+      blueCarMoveSpeed = 3 * playerCarClass.modifier;
+      treesMoveSpeed = 7 * playerCarClass.modifier;
+      signsMoveSpeed = 5 * playerCarClass.modifier;
 
       const aiElements = [...document.querySelectorAll('[data-js-ai-car]')];
       aiCars.length = 0;
