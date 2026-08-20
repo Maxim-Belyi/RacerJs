@@ -1,53 +1,20 @@
 import { Storage } from './storage.js';
+import { CAR_CATALOG, CAR_CLASSES, getCarById } from './car-catalog.js';
 
-export const SHOP_ITEMS = [
+export const UPGRADES = [
   {
-    id: 'skin_red',
-    type: 'skin',
-    name: 'Red Car',
-    desc: 'Stylish red paint job',
-    price: 1,
-    cssClass: 'shop-item__icon--red',
-    carColor: 'red',
-  },
-  {
-    id: 'skin_green',
-    type: 'skin',
-    name: 'Green Car',
-    desc: 'Eco-friendly green paint',
-    price: 1,
-    cssClass: 'shop-item__icon--green',
-    carColor: 'green',
-  },
-  {
-    id: 'skin_gold',
-    type: 'skin',
-    name: 'Gold Car',
-    desc: 'Премиум',
-    price: 1,
-    cssClass: 'shop-item__icon--gold',
-    carColor: 'gold',
-  },
-  {
-    id: 'upgrade_speed',
-    type: 'upgrade',
-    name: 'Улучшение двигателя',
-    desc: 'Увеличивает манёвренность',
-    price: 1,
+    id: 'unlock_magnet',
+    type: 'unlock',
+    name: 'Магнит монет',
+    desc: 'Добавляет на дорогу магниты!',
+    price: 300,
   },
   {
     id: 'consumable_life',
     type: 'consumable',
     name: 'Дополнительная жизнь',
     desc: 'Продолжить игру после столкновения (Максимум 3)',
-    price: 1,
-  },
-  {
-    id: 'unlock_magnet',
-    type: 'unlock',
-    name: 'Магнит монет',
-    desc: 'Добавляет на дорогу магниты!',
-    price: 1,
+    price: 150,
   }
 ];
 
@@ -58,6 +25,9 @@ export function initShop() {
   
   const openButtons = document.querySelectorAll('[data-js-open-shop]');
   const closeButton = document.querySelector('[data-js-close-shop]');
+  const tabButtons = document.querySelectorAll('[data-js-shop-tab]');
+
+  let activeTab = 'garage';
 
   openButtons.forEach(btn => btn.addEventListener('click', () => {
     renderShop();
@@ -68,45 +38,115 @@ export function initShop() {
     shopModal.style.display = 'none';
   });
 
+  tabButtons.forEach(btn => btn.addEventListener('click', (e) => {
+    activeTab = e.target.getAttribute('data-js-shop-tab');
+    tabButtons.forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    renderShop();
+  }));
+
   function renderShop() {
     const state = Storage.get();
     shopCoins.innerText = state.totalCoins;
     shopContent.innerHTML = '';
 
-    SHOP_ITEMS.forEach(item => {
+    if (activeTab === 'garage') {
+      shopContent.classList.add('shop-modal__content--grid');
+      renderGarage(state);
+    } else {
+      shopContent.classList.remove('shop-modal__content--grid');
+      renderUpgrades(state);
+    }
+  }
+
+  function renderGarage(state) {
+    let currentClass = null;
+
+    CAR_CATALOG.forEach(car => {
+      if (car.class !== currentClass) {
+        currentClass = car.class;
+        const clsInfo = CAR_CLASSES[currentClass];
+        const titleEl = document.createElement('div');
+        titleEl.className = 'shop-category-title';
+        titleEl.innerHTML = `
+          <span>${clsInfo.label} Class</span>
+          <span class="modifier">Скорость x${clsInfo.modifier}</span>
+        `;
+        shopContent.appendChild(titleEl);
+      }
+
+      const el = document.createElement('div');
+      
+      let isBought = car.free || state.purchasedCars.includes(car.id);
+      let isSelected = state.selectedCar === car.id;
+      let buttonText = car.free ? 'Бесплатно' : `Купить (${car.price})`;
+      let canAfford = state.totalCoins >= car.price;
+      let buttonClass = 'shop-item__button';
+      let disabled = !canAfford;
+
+      if (isBought) {
+        buttonText = isSelected ? 'Выбрано' : 'Выбрать';
+        disabled = isSelected;
+        canAfford = true;
+        if (isSelected) buttonClass += ' shop-item__button--selected';
+      }
+
+      el.className = `shop-item shop-item--card ${isSelected ? 'shop-item--selected' : ''}`;
+      
+      const iconHtml = car.img 
+        ? `<img src="./images/${car.img}" class="shop-item__icon" alt="${car.name}">`
+        : `<img src="./images/car.png" class="shop-item__icon" alt="Default">`;
+
+      el.innerHTML = `
+        <div class="shop-item__info">
+            ${iconHtml}
+            <div class="shop-item__text">
+                <span class="shop-item__name">${car.name}</span>
+            </div>
+        </div>
+        <div class="shop-item__action">
+            <button class="${buttonClass}" ${disabled ? 'disabled' : ''}>${buttonText}</button>
+        </div>
+      `;
+
+      const btn = el.querySelector('button');
+      btn.addEventListener('click', () => {
+        if (isBought) {
+          state.selectedCar = car.id;
+          Storage.save(state);
+          renderShop();
+          applySkin(car.id);
+        } else if (Storage.spendCoins(car.price)) {
+          state.purchasedCars.push(car.id);
+          state.selectedCar = car.id;
+          Storage.save(state);
+          renderShop();
+          applySkin(car.id);
+        }
+      });
+
+      shopContent.appendChild(el);
+    });
+  }
+
+  function renderUpgrades(state) {
+    UPGRADES.forEach(item => {
       const el = document.createElement('div');
       el.className = 'shop-item';
       
       let isBought = false;
-      let isSelected = false;
       let buttonText = `Купить (${item.price})`;
       let canAfford = state.totalCoins >= item.price;
       let buttonClass = 'shop-item__button';
       let disabled = !canAfford;
 
-      if (item.type === 'skin') {
-        isBought = state.purchasedCars.includes(item.carColor);
-        isSelected = state.selectedCar === item.carColor;
-        
-        if (isBought) {
-          buttonText = isSelected ? 'Selected' : 'Select';
-          disabled = isSelected;
-          canAfford = true;
-          if (isSelected) buttonClass += ' shop-item__button--selected';
-        }
-      } else if (item.type === 'upgrade' && item.id === 'upgrade_speed') {
-        isBought = state.speedLevel > 1; 
-        if (isBought) {
-          buttonText = 'Максимум';
-          disabled = true;
-        }
-      } else if (item.type === 'unlock' && item.id === 'unlock_magnet') {
+      if (item.id === 'unlock_magnet') {
         isBought = state.hasMagnet;
         if (isBought) {
           buttonText = 'Разблокировано';
           disabled = true;
         }
-      } else if (item.type === 'consumable' && item.id === 'consumable_life') {
+      } else if (item.id === 'consumable_life') {
         buttonText = `Купить (${item.price}) [Имеется: ${state.extraLives}]`;
         if (state.extraLives >= 3) {
             buttonText = `Максимум [Имеется: 3]`;
@@ -114,9 +154,7 @@ export function initShop() {
         }
       }
 
-      const iconHtml = item.type === 'skin' 
-        ? `<img src="./images/car.png" class="shop-item__icon ${item.cssClass || ''}" alt="Car">`
-        : `<div class="shop-item__icon" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">${getIconForType(item.type)}</div>`;
+      const iconHtml = `<div class="shop-item__icon" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">${item.type === 'unlock' ? '🧲' : '❤️'}</div>`;
 
       el.innerHTML = `
         <div class="shop-item__info">
@@ -132,59 +170,37 @@ export function initShop() {
       `;
 
       const btn = el.querySelector('button');
-      btn.addEventListener('click', () => handlePurchase(item, isBought));
+      btn.addEventListener('click', () => {
+        if (Storage.spendCoins(item.price)) {
+          if (item.id === 'unlock_magnet') {
+            state.hasMagnet = true;
+          } else if (item.id === 'consumable_life') {
+            state.extraLives++;
+          }
+          Storage.save(state);
+          renderShop();
+        }
+      });
 
       shopContent.appendChild(el);
     });
   }
-
-  function getIconForType(type) {
-      if (type === 'upgrade') return '⚙️';
-      if (type === 'consumable') return '❤️';
-      if (type === 'unlock') return '🧲';
-      return '🛒';
-  }
-
-  function handlePurchase(item, isBought) {
-    const state = Storage.get();
-
-    if (item.type === 'skin' && isBought) {
-      state.selectedCar = item.carColor;
-      Storage.save(state);
-      renderShop();
-      applySkin(item.carColor);
-      return;
-    }
-
-    if (Storage.spendCoins(item.price)) {
-      if (item.type === 'skin') {
-        state.purchasedCars.push(item.carColor);
-        state.selectedCar = item.carColor;
-      } else if (item.id === 'upgrade_speed') {
-        state.speedLevel++;
-      } else if (item.id === 'unlock_magnet') {
-        state.hasMagnet = true;
-      } else if (item.id === 'consumable_life') {
-        state.extraLives++;
-      }
-      Storage.save(state);
-      renderShop();
-      if (item.type === 'skin') applySkin(item.carColor);
-    }
-  }
 }
 
-export function applySkin(carColor) {
+export function applySkin(carId) {
     const carContainer = document.querySelector('.car__blue');
     if (!carContainer) return;
     
-    carContainer.style.setProperty('--car-filter', 'none');
+    const carImg = carContainer.querySelector('img:not(.car-magnet-indicator)');
+    if (!carImg) return;
+
+    const carData = getCarById(carId);
     
-    if (carColor === 'red') {
-        carContainer.style.setProperty('--car-filter', 'hue-rotate(150deg) saturate(1.5)');
-    } else if (carColor === 'green') {
-        carContainer.style.setProperty('--car-filter', 'hue-rotate(270deg) saturate(1.2)');
-    } else if (carColor === 'gold') {
-        carContainer.style.setProperty('--car-filter', 'sepia(1) saturate(5) hue-rotate(-20deg)');
+    if (carData.img) {
+      carImg.src = `./images/${carData.img}`;
+      carContainer.style.setProperty('--car-filter', 'none');
+    } else {
+      carImg.src = `./images/car.png`;
+      carContainer.style.setProperty('--car-filter', 'none');
     }
 }

@@ -42,6 +42,7 @@ import { createElementInfo } from "./utils/create-elem-info.js";
 import { getCoords } from "./utils/get-coords.js";
 import { Sounds } from "./utils/sound.js";
 import { initShop, applySkin } from "./utils/shop.js";
+import { getCarClass } from './utils/car-catalog.js';
 import { runCountdown } from './utils/countdown.js';
 import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/ai-car.js';
 import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
@@ -590,6 +591,13 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   welcomeStartButton.addEventListener('click', () => {
     welcomeScreen.style.display = 'none';
     runCountdown(() => {
+      const state = Storage.get();
+      const carClass = getCarClass(state.selectedCar);
+      
+      blueCarMoveSpeed = 3 * carClass.modifier;
+      treesMoveSpeed = 7 * carClass.modifier;
+      signsMoveSpeed = 5 * carClass.modifier;
+
       const aiElements = [...document.querySelectorAll('[data-js-ai-car]')];
       aiCars.length = 0;
       const startRatios = [0.1, 0.68];

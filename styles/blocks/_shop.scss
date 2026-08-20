@@ -8,7 +8,7 @@
         display: flex;
         flex-direction: column;
         width: 90%;
-        max-width: rem(500);
+        max-width: rem(800);
         max-height: 90vh;
         background: rgba(20, 20, 30, 0.85);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -23,9 +23,11 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: rem(20) rem(24);
+        padding: rem(16) rem(24);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         background: rgba(0, 0, 0, 0.3);
+        gap: rem(24);
+        flex-wrap: wrap;
     }
 
     &__title {
@@ -36,6 +38,35 @@
         letter-spacing: 1px;
     }
 
+    &__tabs {
+        display: flex;
+        gap: rem(8);
+        background: rgba(0, 0, 0, 0.3);
+        padding: rem(4);
+        border-radius: rem(12);
+    }
+
+    &__tab {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: rem(16);
+        font-weight: 600;
+        padding: rem(8) rem(16);
+        border-radius: rem(8);
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            color: #fff;
+        }
+
+        &.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+    }
+
     &__coins {
         font-size: rem(20);
         color: gold;
@@ -43,6 +74,7 @@
         display: flex;
         align-items: center;
         gap: rem(8);
+        margin-left: auto;
     }
 
     &__close {
@@ -66,6 +98,32 @@
         display: flex;
         flex-direction: column;
         gap: rem(16);
+
+        &--grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: rem(16);
+        }
+    }
+}
+
+.shop-category-title {
+    color: #fff;
+    font-size: rem(20);
+    margin: rem(16) 0 rem(8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: rem(4);
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .modifier {
+        font-size: rem(14);
+        color: #00b4db;
+        background: rgba(0, 180, 219, 0.2);
+        padding: rem(2) rem(8);
+        border-radius: rem(12);
     }
 }
 
@@ -77,11 +135,45 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: rem(16);
     padding: rem(12) rem(16);
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
 
     &:hover {
         background: rgba(255, 255, 255, 0.1);
         transform: scale(1.02);
+    }
+
+    &--card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: rem(16);
+        gap: rem(12);
+
+        .shop-item__info {
+            flex-direction: column;
+            gap: rem(8);
+        }
+
+        .shop-item__action {
+            align-items: center;
+            width: 100%;
+        }
+
+        .shop-item__button {
+            width: 100%;
+        }
+
+        .shop-item__icon {
+            height: rem(100);
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+        }
+    }
+
+    &--selected {
+        border-color: #43a047;
+        background: rgba(67, 160, 71, 0.1);
     }
 
     &__info {
@@ -94,7 +186,7 @@
         width: rem(48);
         height: rem(48);
         object-fit: contain;
-        /* Default CSS for car skins */
+        /* Default CSS for old car skins, preserved just in case */
         &--red { filter: hue-rotate(150deg) saturate(1.5); }
         &--green { filter: hue-rotate(270deg) saturate(1.2); }
         &--gold { filter: sepia(1) saturate(5) hue-rotate(-20deg); }
@@ -140,9 +232,9 @@
         background: linear-gradient(135deg, #00b4db, #0083b0);
         border: none;
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: transform 0.2s, background 0.2s;
 
-        &:hover {
+        &:hover:not(:disabled) {
             transform: scale(1.05);
         }
 

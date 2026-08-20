@@ -2,8 +2,8 @@ const STORAGE_KEY = 'racerjs_save';
 
 const defaultState = {
   totalCoins: 0,
-  selectedCar: 'blue',
-  purchasedCars: ['blue'], 
+  selectedCar: 'default',
+  purchasedCars: ['default'], 
   hasMagnet: false,
   extraLives: 0,
   speedLevel: 1
@@ -14,7 +14,12 @@ export const Storage = {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return { ...defaultState, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        if (parsed.selectedCar === 'blue') parsed.selectedCar = 'default';
+        if (parsed.purchasedCars) {
+          parsed.purchasedCars = parsed.purchasedCars.map(c => c === 'blue' ? 'default' : c);
+        }
+        return { ...defaultState, ...parsed };
       }
     } catch (e) {
       console.error('Error reading from localStorage', e);
