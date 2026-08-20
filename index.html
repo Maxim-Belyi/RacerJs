@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car game</title>
-  <script type="module" crossorigin src="./assets/index-D9Xq8509.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DpQTdyY1.css">
+  <script type="module" crossorigin src="./assets/index-VkjR1b3D.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DbKID-Ka.css">
 </head>
 
 <body>
@@ -52,6 +52,10 @@
                 <div class="shop-modal__wrapper">
                     <div class="shop-modal__header">
                         <h2 class="shop-modal__title">Магазин</h2>
+                        <div class="shop-modal__tabs">
+                            <button class="shop-modal__tab active" data-js-shop-tab="garage">Гараж</button>
+                            <button class="shop-modal__tab" data-js-shop-tab="upgrades">Улучшения</button>
+                        </div>
                         <div class="shop-modal__coins">🪙 <span data-js-shop-coins>0</span></div>
                         <button class="shop-modal__close" type="button" data-js-close-shop>&times;</button>
                     </div>
@@ -99,6 +103,43 @@
             <img src="./assets/tree3-B0ZNgNa8.png" alt="">
         </div>
 
+        <div class="tree tree-7" data-js-tree>
+            <img src="./assets/objects_3-BI6clb08.png" alt="">
+        </div>
+
+        <div class="tree tree-8" data-js-tree>
+            <img src="./assets/objects_2-BGS7If__.png" alt="">
+        </div>
+
+        <div class="tree tree-9" data-js-tree>
+            <img src="./assets/objects_5-CTYroeg-.png" alt="">
+        </div>
+
+        <div class="tree tree-10" data-js-tree>
+            <img src="./assets/objects_6-BSZ0YqLt.png" alt="">
+        </div>
+
+        <div class="tree tree-11" data-js-tree>
+            <img src="./assets/objects_7-BdcUT_9g.png" alt="">
+        </div>
+
+        <div class="tree tree-12" data-js-tree>
+            <img src="data:image/png;base64,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" alt="">
+        </div>
+
+        <div class="signs signs__crack" data-js-crack>
+            <img src="./assets/cracks_1-B9YxBmeg.png" alt="">
+        </div>
+        <div class="signs signs__crack" data-js-crack>
+            <img src="./assets/cracks_2-_GyKFYTW.png" alt="">
+        </div>
+        <div class="signs signs__crack" data-js-crack>
+            <img src="./assets/cracks_3-BqMd4BB8.png" alt="">
+        </div>
+        <div class="signs signs__crack" data-js-crack>
+            <img src="./assets/cracks_4-BEvXywbv.png" alt="">
+        </div>
+
         <div class="signs signs__arrow arrow" data-js-arrow>
             <img src="./assets/arrow-zsY2k3xt.png" alt="">
         </div>
@@ -123,6 +164,22 @@
             <img src="./assets/coin-xVJfaZvC.png" alt="">
         </div>
 
+        <div class="signs signs__coin" data-js-coin-d>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
+        <div class="signs signs__coin-alt" data-js-coin-e>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
+        <div class="signs signs__coin" data-js-coin-f>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
+        <div class="signs signs__coin-alt" data-js-coin-g>
+            <img src="./assets/coin-xVJfaZvC.png" alt="">
+        </div>
+
         <div class="signs signs__arrow arrow-b" data-js-arrow-b>
             <img src="./assets/arrow-zsY2k3xt.png" alt="">
         </div>
@@ -137,7 +194,10 @@
             <div class="race-result__inner">
                 <h2 class="race-result__title">🏁 Финиш !</h2>
                 <ul class="race-result__list" data-js-result-list></ul>
-                <button class="button" data-js-restart>Сыграть снова</button>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="button" data-js-restart>Сыграть снова</button>
+                    <button class="button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Магазин</button>
+                </div>
             </div>
         </div>
 
