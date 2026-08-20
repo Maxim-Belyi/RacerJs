@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car game</title>
-  <script type="module" crossorigin src="./assets/index-COHnps_o.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-6tIbtVK3.css">
+  <script type="module" crossorigin src="./assets/index-D9Xq8509.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DpQTdyY1.css">
 </head>
 
 <body>
@@ -20,13 +20,60 @@
                         <p>Total score: <span class="end-game__score" data-js-end-game-score>0</span></p>
                     </div>
                     <button class="button end-game__button" type="button" data-js-end-game-button>Restart</button>
+                    <button class="button end-game__button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Shop</button>
+                </div>
+            </div>
+
+            <div class="backdrop welcome-screen" data-js-welcome-screen>
+                <div class="welcome-screen__wrapper">
+                    <h1 class="welcome-screen__title">Racer JS</h1>
+                    <div class="welcome-screen__mechanics">
+                        <div class="mechanic">
+                            <img src="./assets/coin-xVJfaZvC.png" alt="Coin">
+                            <span>Собирай монеты</span>
+                        </div>
+                        <div class="mechanic">
+                            <img src="./assets/arrow-zsY2k3xt.png" alt="Boost">
+                            <span>Ускорение (Boost)</span>
+                        </div>
+                        <div class="mechanic">
+                            <img src="./assets/danger-CWSsc-VS.png" alt="Danger">
+                            <span>Избегай аварий</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 16px; margin-top: 8px;">
+                        <button class="button welcome-screen__button" type="button" data-js-start-game>Начать игру </button>
+                        <button class="button welcome-screen__button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Магазин</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="backdrop shop-modal" data-js-shop-modal>
+                <div class="shop-modal__wrapper">
+                    <div class="shop-modal__header">
+                        <h2 class="shop-modal__title">Магазин</h2>
+                        <div class="shop-modal__coins">🪙 <span data-js-shop-coins>0</span></div>
+                        <button class="shop-modal__close" type="button" data-js-close-shop>&times;</button>
+                    </div>
+                    <div class="shop-modal__content" data-js-shop-content>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="car car__blue" data-js-car>
             <img src="./assets/car-D3UXI61Z.png" alt="">
+            <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='utf-8'?%3e%3c!--%20Uploaded%20to:%20SVG%20Repo,%20www.svgrepo.com,%20Generator:%20SVG%20Repo%20Mixer%20Tools%20--%3e%3csvg%20width='800px'%20height='800px'%20viewBox='0%200%2072%2072'%20id='emoji'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20id='color'%3e%3cpath%20fill='%23ea5a47'%20d='M43.5,36.5V47a8.5,8.5,0,0,1-17,0V36.5h-6V47a14.5,14.5,0,0,0,29,0V36.5Z'/%3e%3cg%3e%3crect%20x='20.5'%20y='31.5'%20width='6'%20height='5'%20fill='%23d0cfce'/%3e%3crect%20x='43.5'%20y='31.5'%20width='6'%20height='5'%20fill='%23d0cfce'/%3e%3c/g%3e%3cpath%20fill='%23fcea2b'%20d='M44.8818,19.7754a1.283,1.283,0,0,0-1.26-.9072H38.6973l3.4609-7.75a1,1,0,0,0-1.6455-1.0889L29.4214,21.958a1.327,1.327,0,0,0-.2788,1.4512,1.37,1.37,0,0,0,1.2666.85h4.8789l-4.9946,8.05a1.0006,1.0006,0,0,0,.2124,1.2988c.227.1875.38.3145.5717.3145.4,0,.9659-.5567,2.7163-2.2783L44.21,21.3711A1.4519,1.4519,0,0,0,44.8818,19.7754Z'/%3e%3c/g%3e%3cg%20id='line'%3e%3cpath%20fill='none'%20stroke='%23000000'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M43.5,36.5V47a8.5,8.5,0,0,1-17,0V36.5h-6V47a14.5,14.5,0,0,0,29,0V36.5Z'/%3e%3cg%3e%3crect%20x='20.5'%20y='31.5'%20width='6'%20height='5'%20fill='none'%20stroke='%23000000'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'/%3e%3crect%20x='43.5'%20y='31.5'%20width='6'%20height='5'%20fill='none'%20stroke='%23000000'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'/%3e%3c/g%3e%3cpath%20fill='none'%20stroke='%23000000'%20stroke-miterlimit='10'%20stroke-width='2'%20d='M44.8818,19.7754a1.283,1.283,0,0,0-1.26-.9072H38.6973l3.4609-7.75a1,1,0,0,0-1.6455-1.0889L29.4214,21.958a1.327,1.327,0,0,0-.2788,1.4512,1.37,1.37,0,0,0,1.2666.85h4.8789l-4.9946,8.05a1.0006,1.0006,0,0,0,.2124,1.2988c.227.1875.38.3145.5717.3145.4,0,.9659-.5567,2.7163-2.2783L44.21,21.3711A1.4519,1.4519,0,0,0,44.8818,19.7754Z'/%3e%3c/g%3e%3c/svg%3e" class="car-magnet-indicator" data-js-car-magnet style="display: none;">
         </div>
+
+        <div class="car car__ai car__ai--1" data-js-ai-car>
+            <img src="./assets/car-D3UXI61Z.png" alt="">
+        </div>
+        <div class="car car__ai car__ai--2" data-js-ai-car>
+            <img src="./assets/car-D3UXI61Z.png" alt="">
+        </div>
+
+        <div class="finish-line" data-js-finish-line></div>
 
         <div class="tree tree-1" data-js-tree>
             <img src="./assets/tree1-CNx8XysO.png" alt="">
@@ -80,8 +127,22 @@
             <img src="./assets/arrow-zsY2k3xt.png" alt="">
         </div>
 
+        <div class="signs signs__magnet magnet" data-js-magnet>
+            <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='utf-8'?%3e%3c!--%20Uploaded%20to:%20SVG%20Repo,%20www.svgrepo.com,%20Generator:%20SVG%20Repo%20Mixer%20Tools%20--%3e%3csvg%20width='800px'%20height='800px'%20viewBox='0%200%2072%2072'%20id='emoji'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20id='color'%3e%3cpath%20fill='%23ea5a47'%20d='M43.5,36.5V47a8.5,8.5,0,0,1-17,0V36.5h-6V47a14.5,14.5,0,0,0,29,0V36.5Z'/%3e%3cg%3e%3crect%20x='20.5'%20y='31.5'%20width='6'%20height='5'%20fill='%23d0cfce'/%3e%3crect%20x='43.5'%20y='31.5'%20width='6'%20height='5'%20fill='%23d0cfce'/%3e%3c/g%3e%3cpath%20fill='%23fcea2b'%20d='M44.8818,19.7754a1.283,1.283,0,0,0-1.26-.9072H38.6973l3.4609-7.75a1,1,0,0,0-1.6455-1.0889L29.4214,21.958a1.327,1.327,0,0,0-.2788,1.4512,1.37,1.37,0,0,0,1.2666.85h4.8789l-4.9946,8.05a1.0006,1.0006,0,0,0,.2124,1.2988c.227.1875.38.3145.5717.3145.4,0,.9659-.5567,2.7163-2.2783L44.21,21.3711A1.4519,1.4519,0,0,0,44.8818,19.7754Z'/%3e%3c/g%3e%3cg%20id='line'%3e%3cpath%20fill='none'%20stroke='%23000000'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20d='M43.5,36.5V47a8.5,8.5,0,0,1-17,0V36.5h-6V47a14.5,14.5,0,0,0,29,0V36.5Z'/%3e%3cg%3e%3crect%20x='20.5'%20y='31.5'%20width='6'%20height='5'%20fill='none'%20stroke='%23000000'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'/%3e%3crect%20x='43.5'%20y='31.5'%20width='6'%20height='5'%20fill='none'%20stroke='%23000000'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'/%3e%3c/g%3e%3cpath%20fill='none'%20stroke='%23000000'%20stroke-miterlimit='10'%20stroke-width='2'%20d='M44.8818,19.7754a1.283,1.283,0,0,0-1.26-.9072H38.6973l3.4609-7.75a1,1,0,0,0-1.6455-1.0889L29.4214,21.958a1.327,1.327,0,0,0-.2788,1.4512,1.37,1.37,0,0,0,1.2666.85h4.8789l-4.9946,8.05a1.0006,1.0006,0,0,0,.2124,1.2988c.227.1875.38.3145.5717.3145.4,0,.9659-.5567,2.7163-2.2783L44.21,21.3711A1.4519,1.4519,0,0,0,44.8818,19.7754Z'/%3e%3c/g%3e%3c/svg%3e" alt="">
+        </div>
+
+        <div class="countdown" data-js-countdown></div>
+
+        <div class="race-result" data-js-race-result>
+            <div class="race-result__inner">
+                <h2 class="race-result__title">🏁 Финиш !</h2>
+                <ul class="race-result__list" data-js-result-list></ul>
+                <button class="button" data-js-restart>Сыграть снова</button>
+            </div>
+        </div>
+
         <div class="game-score" data-js-game-score-wrapper>
-            <p class="game-score__title">Your score:</p>
+            <p class="game-score__title">Ваш счёт:</p>
             <p class="game-score__value" data-js-game-score-value>0</p>
         </div>
 
