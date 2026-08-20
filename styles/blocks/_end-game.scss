@@ -1,6 +1,5 @@
 @use '../helpers' as *;
 
-/* Встряска контейнера при Game Over */
 @keyframes screen-shake {
     0%          { transform: translateX(0); }
     10%         { transform: translateX(-9px); }
@@ -41,7 +40,6 @@ body.screen-shake {
         align-items: center;
         padding: rem(40) rem(52);
 
-        /* Стеклянная карточка */
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: rem(28);
