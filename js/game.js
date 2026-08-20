@@ -16,10 +16,18 @@ import {
   coinAlt,
   coinB,
   coinC,
+  coinD,
+  coinE,
+  coinF,
+  coinG,
   coinInfo,
   coinAltInfo,
   coinBInfo,
   coinCInfo,
+  coinDInfo,
+  coinEInfo,
+  coinFInfo,
+  coinGInfo,
   controlLeft,
   controlDown,
   controlTop,
@@ -87,10 +95,14 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
   let carMagnetIndicator = null;
 
-  coinInfo.coords.y = -450;
+  coinInfo.coords.y    = -450;
   coinAltInfo.coords.y = -800;
-  coinBInfo.coords.y = -1800;
-  coinCInfo.coords.y = -2400;
+  coinBInfo.coords.y   = -1800;
+  coinCInfo.coords.y   = -2400;
+  coinDInfo.coords.y   = -600;
+  coinEInfo.coords.y   = -1200;
+  coinFInfo.coords.y   = -2100;
+  coinGInfo.coords.y   = -3000;
 
   arrowInfo.coords.y = -2000;
   arrowBInfo.coords.y = -4000;
@@ -339,6 +351,10 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
       { element: coinAlt, info: coinAltInfo, speed: 1600 },
       { element: coinB,   info: coinBInfo,   speed: 2000 },
       { element: coinC,   info: coinCInfo,   speed: 2400 },
+      { element: coinD,   info: coinDInfo,   speed: 1300 },
+      { element: coinE,   info: coinEInfo,   speed: 1800 },
+      { element: coinF,   info: coinFInfo,   speed: 2200 },
+      { element: coinG,   info: coinGInfo,   speed: 2700 },
     ];
 
     regularCoins.forEach(c => {
@@ -428,6 +444,10 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
       { element: coinAlt, info: coinAltInfo },
       { element: coinB,   info: coinBInfo   },
       { element: coinC,   info: coinCInfo   },
+      { element: coinD,   info: coinDInfo   },
+      { element: coinE,   info: coinEInfo   },
+      { element: coinF,   info: coinFInfo   },
+      { element: coinG,   info: coinGInfo   },
     ];
 
     const arrowsForAi = [
@@ -526,7 +546,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   carMagnetIndicator        = document.querySelector('[data-js-car-magnet]');
   const gameButton          = document.querySelector('[data-js-start-game-button]');
   const musicToggle         = document.querySelector('[data-js-sound-button]');
-  const finishLine          = new FinishLine(document.querySelector('[data-js-finish-line]'));
+  const finishLine          = new FinishLine(document.querySelector('[data-js-finish-line]'), roadWidth);
   const raceResultEl        = document.querySelector('[data-js-race-result]');
   const resultListEl        = document.querySelector('[data-js-result-list]');
 

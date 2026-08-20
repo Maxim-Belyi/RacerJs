@@ -23,6 +23,14 @@ export const coinB = document.querySelector('[data-js-coin-b]');
 export const coinBInfo = createElementInfo(coinB);
 export const coinC = document.querySelector('[data-js-coin-c]');
 export const coinCInfo = createElementInfo(coinC);
+export const coinD = document.querySelector('[data-js-coin-d]');
+export const coinDInfo = createElementInfo(coinD);
+export const coinE = document.querySelector('[data-js-coin-e]');
+export const coinEInfo = createElementInfo(coinE);
+export const coinF = document.querySelector('[data-js-coin-f]');
+export const coinFInfo = createElementInfo(coinF);
+export const coinG = document.querySelector('[data-js-coin-g]');
+export const coinGInfo = createElementInfo(coinG);
 
 export const controlLeft = document.querySelector('[data-js-left-control]');
 export const controlDown = document.querySelector('[data-js-down-control]');
