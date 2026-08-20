@@ -69,7 +69,7 @@ export function initShop() {
         const titleEl = document.createElement('div');
         titleEl.className = 'shop-category-title';
         titleEl.innerHTML = `
-          <span>${clsInfo.label} Class</span>
+          <span>${clsInfo.label}</span>
           <span class="modifier">${clsInfo.desc}</span>
         `;
         shopContent.appendChild(titleEl);
@@ -116,7 +116,8 @@ export function initShop() {
           Storage.save(state);
           renderShop();
           applySkin(car.id);
-        } else if (Storage.spendCoins(car.price)) {
+        } else if (state.totalCoins >= car.price) {
+          state.totalCoins -= car.price;
           state.purchasedCars.push(car.id);
           state.selectedCar = car.id;
           Storage.save(state);
@@ -171,7 +172,8 @@ export function initShop() {
 
       const btn = el.querySelector('button');
       btn.addEventListener('click', () => {
-        if (Storage.spendCoins(item.price)) {
+        if (state.totalCoins >= item.price) {
+          state.totalCoins -= item.price;
           if (item.id === 'unlock_magnet') {
             state.hasMagnet = true;
           } else if (item.id === 'consumable_life') {
