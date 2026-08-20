@@ -70,7 +70,7 @@ export function initShop() {
         titleEl.className = 'shop-category-title';
         titleEl.innerHTML = `
           <span>${clsInfo.label} Class</span>
-          <span class="modifier">Скорость x${clsInfo.modifier}</span>
+          <span class="modifier">${clsInfo.desc}</span>
         `;
         shopContent.appendChild(titleEl);
       }
