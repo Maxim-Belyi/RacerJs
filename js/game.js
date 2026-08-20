@@ -95,6 +95,10 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
   let carMagnetIndicator = null;
 
+  [coinInfo, coinAltInfo, coinBInfo, coinCInfo, coinDInfo, coinEInfo, coinFInfo, coinGInfo].forEach(info => {
+    if (!Number.isFinite(info.coords.x)) info.coords.x = 0;
+  });
+
   coinInfo.coords.y    = -450;
   coinAltInfo.coords.y = -800;
   coinBInfo.coords.y   = -1800;
@@ -245,16 +249,20 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
 
   function pullCoinToCar(cInfo) {
-    const carCX = blueCarInfo.coords.x + blueCarInfo.width  / 2;
-    const carCY = blueCarInfo.coords.y + blueCarInfo.height / 2;
-    const coinCX = cInfo.coords.x + cInfo.width  / 2;
-    const coinCY = cInfo.coords.y + cInfo.height / 2;
-    const dx = carCX - coinCX;
-    const dy = carCY - coinCY;
+    if (!Number.isFinite(cInfo.coords.x)) cInfo.coords.x = roadWidth / 2;
+
+    const carCX  = blueCarInfo.coords.x + blueCarInfo.width  / 2;
+    const carCY  = blueCarInfo.coords.y + blueCarInfo.height / 2;
+    const coinCX = cInfo.coords.x + (cInfo.width  || 40) / 2;
+    const coinCY = cInfo.coords.y + (cInfo.height || 40) / 2;
+    const dx   = carCX - coinCX;
+    const dy   = carCY - coinCY;
     const dist = Math.sqrt(dx * dx + dy * dy);
+
     if (dist < 900) {
-      cInfo.coords.x += dx * 0.04;
-      cInfo.coords.y += dy * 0.04;
+      cInfo.coords.x += dx * 0.06;
+      cInfo.coords.y += dy * 0.06;
+      cInfo.coords.x = Math.max(0, Math.min(roadWidth - (cInfo.width || 40), cInfo.coords.x));
     }
   }
 
