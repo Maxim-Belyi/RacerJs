@@ -24,7 +24,6 @@
     50%       { transform: translateY(-5px) scale(1.08); }
 }
 
-/* Стрелка-бустер: мягкое голубое свечение + лёгкое парение */
 @keyframes arrow-glow {
     0%   {
         filter:
@@ -49,7 +48,6 @@
     50%       { transform: translateY(-4px); }
 }
 
-/* Знак danger: пульсирующее красное свечение */
 @keyframes danger-pulse {
     0%   {
         filter:
@@ -69,7 +67,6 @@
     }
 }
 
-/* Магнит: пульсирующее розово-фиолетовое свечение */
 @keyframes magnet-pulse {
     0%   {
         filter:
@@ -127,7 +124,6 @@
     }
 }
 
-/* Анимация монеток — на img, чтобы не конфликтовать с JS transform на родителе */
 .signs__coin img,
 .signs__coin-alt img {
     animation:
@@ -135,19 +131,16 @@
         coin-bob  1.6s ease-in-out infinite;
 }
 
-/* Стрелка-бустер */
 .signs__arrow img {
     animation:
         arrow-glow  2s ease-in-out infinite,
         arrow-float 2s ease-in-out infinite;
 }
 
-/* Знак опасности */
 .signs__danger img {
     animation: danger-pulse 1.8s ease-in-out infinite;
 }
 
-/* Магнит */
 .signs__magnet img {
     animation: magnet-pulse 1.5s ease-in-out infinite;
 }

@@ -19,8 +19,10 @@
         overflow: hidden;
 
         @include mobile {
-            width: calc(100% - 30px);
-            max-height: calc(100% - 30px);
+            width: calc(100% - 40px);
+            height: calc(100% - 40px);
+            max-height: none;
+            border-radius: rem(16);
         }
     }
 
@@ -33,6 +35,11 @@
         background: rgba(0, 0, 0, 0.3);
         gap: rem(24);
         flex-wrap: wrap;
+        
+        @include mobile {
+            padding: rem(16);
+            gap: rem(12);
+        }
     }
 
     &__title {
@@ -109,6 +116,10 @@
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: rem(16);
             padding-bottom: rem(80);
+
+            @include mobile {
+                grid-template-columns: 1fr;
+            }
         }
     }
 }
@@ -203,7 +214,6 @@
         width: rem(48);
         height: rem(48);
         object-fit: contain;
-        /* Default CSS for old car skins, preserved just in case */
         &--red { filter: hue-rotate(150deg) saturate(1.5); }
         &--green { filter: hue-rotate(270deg) saturate(1.2); }
         &--gold { filter: sepia(1) saturate(5) hue-rotate(-20deg); }
