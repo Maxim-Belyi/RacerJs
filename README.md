@@ -9,7 +9,7 @@
 <br>
 <br>
 <p align="center">
-<img src="images/car-game_title.avif" alt="app screenshot" width="800">
+<img src="public/images/car-game_title.avif" alt="app screenshot" width="800">
 </p>
 <br>
 ### 🎮 Особенности

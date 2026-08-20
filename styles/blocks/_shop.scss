@@ -17,6 +17,11 @@
             0 8px 32px rgba(0, 0, 0, 0.6),
             inset 0 1px 0 rgba(255, 255, 255, 0.15);
         overflow: hidden;
+
+        @include mobile {
+            width: calc(100% - 30px);
+            max-height: calc(100% - 30px);
+        }
     }
 
     &__header {
@@ -103,6 +108,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: rem(16);
+            padding-bottom: rem(80);
         }
     }
 }
@@ -114,6 +120,7 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: rem(4);
     grid-column: 1 / -1;
+    gap:rem(18);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -142,12 +149,22 @@
         transform: scale(1.02);
     }
 
+    @include mobile {
+        flex-direction: column;
+        align-items: stretch;
+        gap: rem(16);
+    }
+
     &--card {
         flex-direction: column;
         align-items: center;
         text-align: center;
         padding: rem(16);
         gap: rem(12);
+
+        @include mobile {
+            align-items: center;
+        }
 
         .shop-item__info {
             flex-direction: column;
@@ -214,6 +231,11 @@
         flex-direction: column;
         align-items: flex-end;
         gap: rem(8);
+
+        @include mobile {
+            align-items: stretch;
+            width: 100%;
+        }
     }
 
     &__price {
@@ -236,6 +258,15 @@
 
         &:hover:not(:disabled) {
             transform: scale(1.05);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+
+        @include mobile {
+            width: 100%;
+            text-align: center;
         }
 
         &:disabled {
