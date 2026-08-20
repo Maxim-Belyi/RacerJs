@@ -118,6 +118,13 @@
         width: fluid(90, 50);
         transform: translate(250px, -150vh);
     }
+
+    &__crack {
+        width: fluid(120, 60);
+        height: auto;
+        transform: translate(0, -10000px);
+        z-index: 1;
+    }
 }
 
 /* Анимация монеток — на img, чтобы не конфликтовать с JS transform на родителе */

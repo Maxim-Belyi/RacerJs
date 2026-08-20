@@ -43,3 +43,9 @@ export const road = document.querySelector('[data-js-road]');
 export const roadWidth = road.clientWidth;
 
 export const treesCoords = [];
+
+export const cracks = document.querySelectorAll('[data-js-crack]');
+export const cracksInfo = Array.from(cracks).map(c => ({
+    ...createElementInfo(c),
+    visible: false
+}));

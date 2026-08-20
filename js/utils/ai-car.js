@@ -28,6 +28,7 @@ export class AiCar {
     this.targetX = 0;
     this.retargetTimer = 0;
     this.stunFrames = 0;
+    this.slowDownFrames = 0;
     this.travelDist = 0;
     this.modifier = 1.0;
     this.boosting = false;
@@ -41,7 +42,7 @@ export class AiCar {
     this._sync();
   }
 
-  update(playerTravelDist, playerY, baseSpeed, dangerInfo, coins, arrows) {
+  update(playerTravelDist, playerY, baseSpeed, dangerInfo, coins, arrows, cracks) {
     let speedFactor = this.modifier;
     if (this.stunFrames > 0) {
       this.stunFrames--;
@@ -49,6 +50,11 @@ export class AiCar {
       this.vx += (Math.random() - 0.5) * 2.5;
     } else if (this.boosting) {
       speedFactor *= BOOST_SPEED_MULT;
+    }
+    
+    if (this.slowDownFrames > 0) {
+      this.slowDownFrames--;
+      speedFactor *= 0.5;
     }
 
     this.travelDist += baseSpeed * speedFactor;
@@ -65,6 +71,14 @@ export class AiCar {
       if (!steered) this._steerToTarget();
 
       this._avoidDanger(dangerInfo);
+      
+      if (cracks) {
+        for (let crack of cracks) {
+          if (crack.visible && this.overlaps(crack)) {
+            this.slowDown();
+          }
+        }
+      }
     }
 
     this.vx = Math.max(-MAX_VX, Math.min(MAX_VX, this.vx * FRICTION));
@@ -77,6 +91,13 @@ export class AiCar {
     this.stunFrames = STUN_FRAMES;
     this.element.classList.add('ai-stunned');
     setTimeout(() => this.element.classList.remove('ai-stunned'), 1800);
+  }
+
+  slowDown() {
+    if (this.slowDownFrames > 0) return;
+    this.slowDownFrames = 120; // 2 seconds at 60fps
+    this.element.classList.add('ai-slowed');
+    setTimeout(() => this.element.classList.remove('ai-slowed'), 2000);
   }
 
   boost() {

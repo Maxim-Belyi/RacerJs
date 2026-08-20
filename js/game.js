@@ -34,6 +34,8 @@ import {
   controlRight,
   roadWidth,
   treesCoords,
+  cracks,
+  cracksInfo
 } from "./utils/variables.js";
 
 import { hasCollision } from "./utils/has-collision.js";
@@ -60,6 +62,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
   let playerTravelDist = 0;
   let playerBoostDelta = 0;
+  let playerSlowDownFrames = 0;
   let finishReached = false;
   let playerCarClass = null;
 
@@ -117,6 +120,12 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   magnetInfo.visible = false;
 
   dangerInfo.coords.y = -3000;
+
+  for (let i = 0; i < cracks.length; i++) {
+    cracksInfo[i].coords.y = -2000 - (i * 2500);
+    cracksInfo[i].visible = true;
+    cracks[i].style.display = 'initial';
+  }
 
   const blueCarInfo = {
     ...createElementInfo(blueCar),
@@ -237,12 +246,12 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   });
 
 
-  function treesAnimation() {
-    roadMarkingOffset = (roadMarkingOffset + treesMoveSpeed) % MARKING_REPEAT;
+  function treesAnimation(speed) {
+    roadMarkingOffset = (roadMarkingOffset + speed) % MARKING_REPEAT;
     roadMarking.style.backgroundPositionY = roadMarkingOffset + 'px';
 
     for (let i = 0; i < trees.length; i++) {
-      let y = treesCoords[i].y + treesMoveSpeed;
+      let y = treesCoords[i].y + speed;
       if (y > window.innerHeight / 3) y = -window.innerHeight * 1.5;
       treesCoords[i].y = y;
       trees[i].style.transform = `translate(${treesCoords[i].x}px, ${y}px)`;
@@ -269,8 +278,8 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   }
 
  
-  function elementAnimation(elem, elemInfo, trackLength) {
-    const newY = elemInfo.coords.y + signsMoveSpeed;
+  function elementAnimation(elem, elemInfo, trackLength, speed = signsMoveSpeed) {
+    const newY = elemInfo.coords.y + speed;
     const newX = elemInfo.coords.x;
 
     if (newY > window.innerHeight + 50) {
@@ -287,14 +296,14 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     elem.style.transform = `translate(${newX}px, ${newY}px)`;
   }
 
-  function moveExtraCoin(coinObj) {
+  function moveExtraCoin(coinObj, speed) {
     if (!coinObj.info.visible) return;
 
     if (magnetActive) {
       pullCoinToCar(coinObj.info);
     }
 
-    const newY = coinObj.info.coords.y + signsMoveSpeed;
+    const newY = coinObj.info.coords.y + speed;
     coinObj.info.coords.y = newY;
     coinObj.element.style.transform = `translate(${coinObj.info.coords.x}px, ${newY}px)`;
 
@@ -354,7 +363,18 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   function startGame() {
     if (isPause) return;
 
-    treesAnimation();
+    if (playerSlowDownFrames > 0) {
+      playerSlowDownFrames--;
+      blueCarInfo.moveSpeed = blueCarMoveSpeed * 0.5;
+    } else {
+      blueCarInfo.moveSpeed = blueCarMoveSpeed;
+    }
+    
+    const currentSpeedMod = playerSlowDownFrames > 0 ? 0.5 : 1.0;
+    const actualTreesSpeed = treesMoveSpeed * currentSpeedMod;
+    const actualSignsSpeed = signsMoveSpeed * currentSpeedMod;
+
+    treesAnimation(actualTreesSpeed);
 
     const regularCoins = [
       { element: coin,    info: coinInfo,    speed: 1000 },
@@ -368,7 +388,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     ];
 
     regularCoins.forEach(c => {
-      elementAnimation(c.element, c.info, c.speed);
+      elementAnimation(c.element, c.info, c.speed, actualSignsSpeed);
 
       if (magnetActive && c.info.visible) pullCoinToCar(c.info);
 
@@ -378,7 +398,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     });
 
     extraCoins.forEach(coinObj => {
-      moveExtraCoin(coinObj);
+      moveExtraCoin(coinObj, actualSignsSpeed);
 
       if (coinObj.info.visible && hasCollision(blueCarInfo, coinObj.info)) {
         collectCoin(coinObj.element, coinObj.info);
@@ -387,7 +407,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     });
 
     [{ el: arrow, info: arrowInfo }, { el: arrowB, info: arrowBInfo }].forEach(({ el, info }) => {
-      elementAnimation(el, info, 4000);
+      elementAnimation(el, info, 4000, actualSignsSpeed);
       if (info.visible && hasCollision(blueCarInfo, info)) {
         spawnPopLabel(el, 'BOOST!', 'boost');
         info.visible = false;
@@ -415,7 +435,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
     const state = Storage.get();
     if (state.hasMagnet) {
-      elementAnimation(magnet, magnetInfo, 6000);
+      elementAnimation(magnet, magnetInfo, 6000, actualSignsSpeed);
       if (magnetInfo.visible && hasCollision(blueCarInfo, magnetInfo)) {
         magnetActive = true;
         if (carMagnetIndicator) carMagnetIndicator.style.display = 'block';
@@ -436,10 +456,23 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
       }
     }
 
-    elementAnimation(dangerElem, dangerInfo, 3000);
+    elementAnimation(dangerElem, dangerInfo, 3000, actualSignsSpeed);
     if (dangerInfo.visible && hasCollision(blueCarInfo, dangerInfo)) {
       finishGame();
       return;
+    }
+
+    for (let i = 0; i < cracks.length; i++) {
+      elementAnimation(cracks[i], cracksInfo[i], 2000 + (i * 2500), actualSignsSpeed);
+      if (cracksInfo[i].visible && hasCollision(blueCarInfo, cracksInfo[i])) {
+        playerSlowDownFrames = 120;
+        cracksInfo[i].visible = false;
+        cracks[i].style.display = 'none';
+        cracksInfo[i].coords.y = -5000;
+        if (Sounds.isPlaying) Sounds.play('slow');
+        blueCar.classList.add('car--damaged');
+        setTimeout(() => blueCar.classList.remove('car--damaged'), 2000);
+      }
     }
 
     if (state.speedLevel > 1 && blueCarMoveSpeed < 6) {
@@ -468,7 +501,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     ];
 
     aiCars.forEach(ai => {
-      ai.update(playerTravelDist, blueCarInfo.coords.y, aiBaseSpeed, dangerInfo, coinsForAi, arrowsForAi);
+      ai.update(playerTravelDist, blueCarInfo.coords.y, aiBaseSpeed, dangerInfo, coinsForAi, arrowsForAi, cracksInfo);
       resolveAiPlayerCollision(ai, blueCarInfo, blueCar, roadWidth);
 
       if (ai.overlaps(dangerInfo)) ai.stun();

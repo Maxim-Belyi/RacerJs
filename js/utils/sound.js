@@ -12,6 +12,9 @@ export const Sounds = {
 
     this.audio.arrow = new Audio('./media/engine-force.mp3');
     this.audio.arrow.volume = 0.3;
+
+    this.audio.slow = new Audio('./media/slow.mp3');
+    this.audio.slow.volume = 0.5;
   },
 
   play(name) {
