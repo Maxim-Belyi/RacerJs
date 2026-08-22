@@ -195,10 +195,10 @@
                 <h2 class="race-result__title" style="color: #e74c3c;">💥 Авария!</h2>
                 <p style="text-align: center; margin-bottom: 5px; font-size: 1.2rem; color: rgba(255, 255, 255, 0.8);">Вы врезались в препятствие!</p>
                 <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-                    <button class="button" style="background: #27ae60; width: 100%; font-size: 16px;" type="button" data-js-crash-revive>
+                    <button class="race-result__btn race-result__btn--green" type="button" data-js-crash-revive>
                         ❤️ Возродиться (Осталось: <span data-js-crash-lives>0</span>)
                     </button>
-                    <button class="button" style="background: #e74c3c; width: 100%; font-size: 16px;" type="button" data-js-crash-restart>Начать заново</button>
+                    <button class="race-result__btn race-result__btn--red" type="button" data-js-crash-restart>Начать заново</button>
                 </div>
             </div>
         </div>
@@ -207,9 +207,9 @@
             <div class="race-result__inner">
                 <h2 class="race-result__title">🏁 Финиш !</h2>
                 <ul class="race-result__list" data-js-result-list></ul>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="button" data-js-restart>Сыграть снова</button>
-                    <button class="button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Магазин</button>
+                <div style="display: flex; gap: 12px; margin-top: 20px; width: 100%;">
+                    <button class="race-result__btn" type="button" data-js-restart>Сыграть снова</button>
+                    <button class="race-result__btn race-result__btn--orange" type="button" data-js-open-shop>🛒 Магазин</button>
                 </div>
             </div>
         </div>
@@ -220,10 +220,10 @@
         </div>
 
         <div class="button-wrapper">
-            <button class="button button__game" type="button" data-js-start-game-button>
+            <!-- <button class="button button__game" type="button" data-js-start-game-button>
                 <img class="button__pause" src="./images/pause.png" alt="">
                 <img class="button__play visually-hidden" src="./images/play.png" alt="">
-            </button>
+            </button> -->
 
             <button class="button__sound button" data-js-sound-button>
                 <img class="button__sound-on" src="./images/sound-on.png"></img>
