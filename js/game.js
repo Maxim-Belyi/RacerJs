@@ -509,7 +509,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
       ai.update(playerTravelDist, blueCarInfo.coords.y, aiBaseSpeed, dangerInfo, coinsForAi, arrowsForAi, cracksInfo);
       resolveAiPlayerCollision(ai, blueCarInfo, blueCar, roadWidth);
 
-      if (ai.overlaps(dangerInfo)) ai.stun();
+      if (ai.overlaps(dangerInfo)) ai.crash(dangerInfo.coords.x + dangerInfo.width / 2);
 
       coinsForAi.forEach(c => {
         if (c.info.visible && ai.overlaps(c.info)) {
@@ -668,8 +668,10 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
       isPause = false;
       animationId = requestAnimationFrame(startGame);
-      gameButton.children[1].classList.remove('visually-hidden');
-      gameButton.children[0].classList.add('visually-hidden');
+      if (gameButton) {
+        gameButton.children[1].classList.remove('visually-hidden');
+        gameButton.children[0].classList.add('visually-hidden');
+      }
     });
   });
 
@@ -681,19 +683,21 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   initShop();
   applySkin(Storage.get().selectedCar);
 
-  gameButton.addEventListener('click', () => {
-    isPause = !isPause;
-    if (isPause) {
-      cancelAnimationFrame(animationId);
-      stopCarAnimations();
-      gameButton.children[1].classList.add('visually-hidden');
-      gameButton.children[0].classList.remove('visually-hidden');
-    } else {
-      animationId = requestAnimationFrame(startGame);
-      gameButton.children[1].classList.remove('visually-hidden');
-      gameButton.children[0].classList.add('visually-hidden');
-    }
-  });
+  if (gameButton) {
+    gameButton.addEventListener('click', () => {
+      isPause = !isPause;
+      if (isPause) {
+        cancelAnimationFrame(animationId);
+        stopCarAnimations();
+        gameButton.children[1].classList.add('visually-hidden');
+        gameButton.children[0].classList.remove('visually-hidden');
+      } else {
+        animationId = requestAnimationFrame(startGame);
+        gameButton.children[1].classList.remove('visually-hidden');
+        gameButton.children[0].classList.add('visually-hidden');
+      }
+    });
+  }
 
   musicToggle.addEventListener('click', () => {
     Sounds.toggleMute();
