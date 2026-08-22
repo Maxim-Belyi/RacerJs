@@ -28,6 +28,7 @@
         position: absolute;
         width: fluid(120, 30);
         transform: translate(310%, -25vh);
+        z-index: 20;
     }
 
     &--boosting {
