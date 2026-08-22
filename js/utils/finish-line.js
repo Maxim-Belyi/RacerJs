@@ -10,7 +10,7 @@ export class FinishLine {
 
   update(playerTravelDist, playerY) {
     if (this._baseY === undefined) {
-      this._baseY = playerY - 20;
+      this._baseY = playerY;
     }
 
     const remaining = RACE_DISTANCE - playerTravelDist;
@@ -41,7 +41,8 @@ export class StartLine {
 
   update(playerTravelDist, playerY) {
     if (this._baseY === undefined) {
-      this._baseY = window.innerHeight * 0.15;
+  
+      this._baseY = playerY - (window.innerHeight * -0.4);
     }
 
     const screenY = this._baseY + playerTravelDist;
