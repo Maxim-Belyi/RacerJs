@@ -318,9 +318,23 @@ export function resolveAiPlayerCollision(ai, playerInfo, playerElement, roadWidt
 }
 
 export function resolveAiAiCollision(a, b) {
-  if (!a.overlaps(b.getBounds())) return;
+  // Check if they are relatively close on the Y axis
+  if (Math.abs(a.y - b.y) > a.height * 1.5) return;
 
-  const dir = (a.x + a.width / 2) > (b.x + b.width / 2) ? 1 : -1;
-  a.push(dir  * SEP_FORCE);
-  b.push(-dir * SEP_FORCE);
+  const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
+  const minSeparation = a.width * 1.2;
+
+  // If they get too close horizontally, push them apart gently
+  if (Math.abs(dx) < minSeparation) {
+    const dir = dx > 0 ? 1 : -1;
+    a.push(dir * 2);
+    b.push(-dir * 2);
+  }
+
+  // Hard collision resolution
+  if (a.overlaps(b.getBounds())) {
+    const hardDir = dx > 0 ? 1 : -1;
+    a.push(hardDir * SEP_FORCE);
+    b.push(-hardDir * SEP_FORCE);
+  }
 }

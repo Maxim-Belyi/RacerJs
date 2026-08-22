@@ -489,7 +489,10 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
     playerTravelDist += signsMoveSpeed;
     
     const worldBaseSpeed = playerCarClass ? (signsMoveSpeed / playerCarClass.modifier) : signsMoveSpeed;
-    const aiBaseSpeed = worldBaseSpeed - playerBoostDelta;
+    let aiBaseSpeed = worldBaseSpeed - playerBoostDelta;
+    if (window.currentGameLevel) {
+      aiBaseSpeed *= 1 + (window.currentGameLevel - 1) * 0.02;
+    }
 
     const coinsForAi = [
       { element: coin,    info: coinInfo    },
@@ -593,6 +596,13 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   const startLine           = new StartLine(document.querySelector('[data-js-start-line]'), roadWidth);
   const raceResultEl        = document.querySelector('[data-js-race-result]');
   const resultListEl        = document.querySelector('[data-js-result-list]');
+  const gameLevelValue      = document.querySelector('[data-js-game-level-value]');
+
+  // Initialize level on load
+  if (gameLevelValue) {
+    const st = Storage.get();
+    gameLevelValue.textContent = st.gameLevel || 1;
+  }
 
   function finishRace() {
     cancelAnimationFrame(animationId);
@@ -605,6 +615,12 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       { label: 'You', dist: playerTravelDist },
       ...aiCars.map((ai, i) => ({ label: `Бот ${i + 1}`, dist: ai.travelDist })),
     ].sort((a, b) => b.dist - a.dist);
+
+    if (places[0].label === 'You') {
+      const state = Storage.get();
+      state.gameLevel = (state.gameLevel || 1) + 1;
+      Storage.save(state);
+    }
 
     const medals = ['🥇', '🥈', '🥉'];
     resultListEl.innerHTML = places
@@ -659,14 +675,37 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       const state = Storage.get();
       playerCarClass = getCarClass(state.selectedCar);
       
+      const level = state.gameLevel || 1;
+      window.currentGameLevel = level;
+      if (gameLevelValue) gameLevelValue.textContent = level;
+
       blueCarMoveSpeed = 3 * playerCarClass.modifier;
       treesMoveSpeed = 7 * playerCarClass.modifier;
       signsMoveSpeed = 5 * playerCarClass.modifier;
+
+      const aiCarImages = [
+        './images/car.png',
+        './images/cars/car_porshe_black2.png',
+        './images/cars/car_race_black.png',
+        './images/cars/car_sport_black.png',
+        './images/cars/car_race_blue.png',
+        './images/cars/car_porshe_silver.png',
+        './images/cars/car_race_red.png',
+        './images/cars/car_sport_gold.png'
+      ];
 
       const aiElements = [...document.querySelectorAll('[data-js-ai-car]')];
       aiCars.length = 0;
       const startRatios = [0.1, 0.68];
       aiElements.forEach((el, i) => {
+        const carIndex = i === 0 
+           ? Math.floor((level + 5) / 10) 
+           : Math.floor(level / 10);
+        
+        const carImage = aiCarImages[Math.min(carIndex, aiCarImages.length - 1)];
+
+        const img = el.querySelector('img');
+        if (img) img.src = carImage;
         const ai = new AiCar(el, roadWidth);
         ai.place(roadWidth * startRatios[i], blueCarInfo.coords.y, playerTravelDist);
         aiCars.push(ai);

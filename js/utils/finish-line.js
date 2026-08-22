@@ -24,7 +24,7 @@ export class FinishLine {
     this.element.style.display = 'block';
     this.element.style.transform = `translateY(${screenY}px)`;
 
-    return !this.crossed && screenY >= playerY;
+    return !this.crossed && screenY >= playerY + 150;
   }
 
   markCrossed() {
@@ -41,7 +41,6 @@ export class StartLine {
 
   update(playerTravelDist, playerY) {
     if (this._baseY === undefined) {
-  
       this._baseY = playerY - (window.innerHeight * -0.4);
     }
 

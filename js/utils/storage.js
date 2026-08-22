@@ -6,7 +6,8 @@ const defaultState = {
   purchasedCars: ['default'], 
   hasMagnet: false,
   extraLives: 0,
-  speedLevel: 1
+  speedLevel: 1,
+  gameLevel: 1
 };
 
 export const Storage = {
