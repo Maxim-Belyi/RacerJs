@@ -119,7 +119,9 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   coinGInfo.coords.y   = -3000;
 
   arrowInfo.coords.y = -2000;
+  arrowInfo.visible = true;
   arrowBInfo.coords.y = -4000;
+  arrowBInfo.visible = true;
   magnetInfo.coords.y = -6000;
   magnet.style.display = 'none';
   magnetInfo.visible = false;
@@ -506,7 +508,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
     ];
 
     aiCars.forEach(ai => {
-      ai.update(playerTravelDist, blueCarInfo.coords.y, aiBaseSpeed, dangerInfo, coinsForAi, arrowsForAi, cracksInfo);
+      ai.update(playerTravelDist, aiBaseSpeed, dangerInfo, coinsForAi, arrowsForAi, cracksInfo);
       resolveAiPlayerCollision(ai, blueCarInfo, blueCar, roadWidth);
 
       if (ai.overlaps(dangerInfo)) ai.crash(dangerInfo.coords.x + dangerInfo.width / 2);

@@ -20,8 +20,6 @@ const OVERTAKE_DIST     = 80;
 const OVERTAKE_MULT_MAX = 1.12;
 // Slow lerp rate for speed modifier (prevents sudden surges)
 const SPEED_LERP        = 0.02;
-// The AI won't go above the player's Y minus this margin (prevents jamming top)
-const PLAYER_Y_MARGIN   = 30;
 
 // ─── Boost / stun ────────────────────────────────────────────────────────────
 const BOOST_SPEED_MULT  = 1.35;   // arrow pickup — gentler than before
@@ -43,6 +41,7 @@ export class AiCar {
     this.x          = 0;
     this.y          = 0;
     this.vx         = 0;
+    this._baseY     = 0;   // fixed Y reference (road coord system, set at place())
 
     // Target lane X (center of lane the AI wants to reach)
     this.targetX    = 0;
@@ -69,13 +68,14 @@ export class AiCar {
   place(x, y, syncTravelDist) {
     this.x = this._clamp(x);
     this.y = y;
+    this._baseY = y;          // lock the reference once at start
     this.targetX = this.x;
     this.travelDist = syncTravelDist;
     this._sync();
   }
 
   // ── update (called every frame) ────────────────────────────────────────────
-  update(playerTravelDist, playerY, baseSpeed, dangerInfo, coins, arrows, cracks) {
+  update(playerTravelDist, baseSpeed, dangerInfo, coins, arrows, cracks) {
     // ── 1. Speed factor ──────────────────────────────────────────────────────
     if (this.knockbackFrames > 0) {
       this.knockbackFrames--;
@@ -102,17 +102,12 @@ export class AiCar {
     // ── 2. Advance travel distance ───────────────────────────────────────────
     this.travelDist += baseSpeed * speedFactor;
 
-    // ── 3. Y position from travel distance ──────────────────────────────────
-    this.y = playerY + (playerTravelDist - this.travelDist);
+    // ── 3. Y position: fixed in road coords, adjusted only by travel delta ───
+    // _baseY is the player's starting Y (road coord) and never changes.
+    // This way AI cars don't mirror the player's up/down key presses.
+    this.y = this._baseY + (playerTravelDist - this.travelDist);
 
-    // Enforce: AI must never be ABOVE player + margin (prevents rushing off-screen)
-    const yMin = playerY - PLAYER_Y_MARGIN;
-    if (this.y < yMin) {
-      this.y = yMin;
-      this.travelDist = playerTravelDist - (yMin - playerY);
-      // Slow down so we don't keep bumping the cap
-      this._targetModifier = Math.max(0.8, this._targetModifier - 0.05);
-    }
+
 
     // ── 4. Steering (only when not stunned) ──────────────────────────────────
     if (this.stunFrames <= 0) {
@@ -141,24 +136,25 @@ export class AiCar {
           ? Math.max(0, this.x - 180)
           : Math.min(this.roadWidth - this.width, this.x + 180);
         this.targetX = safeX;
-        this.retargetTimer = Math.max(this.retargetTimer, 40); // don't retarget too soon
+        this.retargetTimer = Math.max(this.retargetTimer, 40);
       }
 
       // 4c. Pick up items: arrows first, then coins ─────────────────────────
       const steeredToArrow = this._steerToItem(arrows, 130, 420, 0.16);
-      if (!steeredToArrow) this._steerToItem(coins,  90, 300, 0.10);
+      if (!steeredToArrow) this._steerToItem(coins, 90, 300, 0.10);
 
       // 4d. Steer toward target lane ─────────────────────────────────────────
       this._steerToTarget();
 
       // 4e. Overtake: if AI is clearly behind player, gently increase speed ─
-      const distBehind = this.y - playerY; // positive = behind player
+      // When this.y > _baseY, AI has fallen behind (positive = behind)
+      const distBehind = this.y - this._baseY;
       if (distBehind > OVERTAKE_DIST) {
         // Smoothly ramp up target modifier
         const ratio = Math.min(1, (distBehind - OVERTAKE_DIST) / 200);
         this._targetModifier = 1.0 + ratio * (OVERTAKE_MULT_MAX - 1.0);
       } else {
-        // Close to or ahead of player — normalize speed
+        // Close to or ahead of starting position — normalize speed
         this._targetModifier = 1.0;
       }
     }
@@ -211,13 +207,21 @@ export class AiCar {
     return { x: this.x, y: this.y, width: this.width, height: this.height };
   }
 
+  /**
+   * AABB collision check — works for any object that exposes
+   * either { coords: {x,y}, width, height } (road signs/coins/arrows)
+   * or     { x, y, width, height }          (other AI cars / player bounds).
+   * All coordinates are CSS-transform values in the same space.
+   */
   overlaps(b) {
     const bx = b.coords ? b.coords.x : b.x;
     const by = b.coords ? b.coords.y : b.y;
+    const bw = b.width  || 40;
+    const bh = b.height || 40;
     return (
-      this.x < bx + b.width  &&
+      this.x < bx + bw &&
       this.x + this.width  > bx &&
-      this.y < by + b.height &&
+      this.y < by + bh &&
       this.y + this.height > by
     );
   }
@@ -232,14 +236,12 @@ export class AiCar {
     const ox = obs.coords ? obs.coords.x : obs.x;
     const oy = obs.coords ? obs.coords.y : obs.y;
     const ow = obs.width  || 40;
-    const oh = obs.height || 40;
     const obsCX = ox + ow / 2;
     const myCX  = this.x + this.width / 2;
     const dx    = Math.abs(obsCX - myCX);
-    const dy    = oy - this.y; // positive = obstacle is ahead (lower on screen = lower y)
+    const dy    = oy - this.y;
 
     if (dx < AVOID_HWIDTH && dy > -this.height && dy < AVOID_LOOK_AHEAD) {
-      // Closer obstacles get stronger avoidance
       const urgency = 1 - dy / AVOID_LOOK_AHEAD;
       const dir = myCX < obsCX ? -1 : 1;
       if (Math.abs(this.avoidDir) < urgency) {
@@ -255,7 +257,7 @@ export class AiCar {
     let bestDx = 0;
     for (const item of items) {
       const info = item.info || item;
-      if (!info.visible) continue;
+      if (info.visible === false) continue;
       const cx = (info.coords ? info.coords.x : info.x) + (info.width || 30) / 2;
       const cy = info.coords ? info.coords.y : info.y;
       const myCX = this.x + this.width / 2;
