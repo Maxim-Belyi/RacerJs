@@ -27,6 +27,8 @@
             </div>
         <div class="road" data-js-road>
             <div class="road-marking" data-js-road-marking></div>
+            <div class="start-line" data-js-start-line></div>
+            <div class="finish-line" data-js-finish-line></div>
 
             <div class="backdrop end-game" data-js-end-game-backdrop>
                 <div class="end-game__wrapper">
@@ -77,7 +79,6 @@
             <img src="./images/car.png" alt="">
         </div>
 
-        <div class="finish-line" data-js-finish-line></div>
 
         <div class="tree tree-1" data-js-tree>
             <img src="./images/tree1.png" alt="">
@@ -198,7 +199,10 @@
                     <button class="race-result__btn race-result__btn--green" type="button" data-js-crash-revive>
                         ❤️ Возродиться (Осталось: <span data-js-crash-lives>0</span>)
                     </button>
-                    <button class="race-result__btn race-result__btn--red" type="button" data-js-crash-restart>Начать заново</button>
+                    <div style="display: flex; gap: 12px; width: 100%;">
+                        <button class="race-result__btn race-result__btn--red" type="button" data-js-crash-restart style="flex: 1;">Начать заново</button>
+                        <button class="race-result__btn race-result__btn--orange" type="button" data-js-open-shop style="flex: 1;">🛒 Магазин</button>
+                    </div>
                 </div>
             </div>
         </div>

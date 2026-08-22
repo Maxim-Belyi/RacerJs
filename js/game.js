@@ -51,7 +51,7 @@ import { initShop, applySkin } from "./utils/shop.js";
 import { getCarClass } from './utils/car-catalog.js';
 import { runCountdown } from './utils/countdown.js';
 import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/ai-car.js';
-import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
+import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
 
 (function () {
   let isPause = true;
@@ -531,6 +531,8 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
     if (aiCars.length >= 2) resolveAiAiCollision(aiCars[0], aiCars[1]);
 
+    startLine.update(playerTravelDist, blueCarInfo.coords.y);
+
     if (finishLine.update(playerTravelDist, blueCarInfo.coords.y)) {
       finishLine.markCrossed();
       finishReached = true;
@@ -588,6 +590,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
   const gameButton          = document.querySelector('[data-js-start-game-button]');
   const musicToggle         = document.querySelector('[data-js-sound-button]');
   const finishLine          = new FinishLine(document.querySelector('[data-js-finish-line]'), roadWidth);
+  const startLine           = new StartLine(document.querySelector('[data-js-start-line]'), roadWidth);
   const raceResultEl        = document.querySelector('[data-js-race-result]');
   const resultListEl        = document.querySelector('[data-js-result-list]');
 
@@ -651,6 +654,7 @@ import { FinishLine, RACE_DISTANCE } from './utils/finish-line.js';
 
   welcomeStartButton.addEventListener('click', () => {
     welcomeScreen.style.display = 'none';
+    startLine.update(playerTravelDist, blueCarInfo.coords.y);
     runCountdown(() => {
       const state = Storage.get();
       playerCarClass = getCarClass(state.selectedCar);
