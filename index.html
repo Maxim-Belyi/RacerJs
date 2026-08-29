@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car game</title>
-  <script type="module" crossorigin src="./assets/index-COcEoNzF.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-h9Yp6zzr.css">
+  <script type="module" crossorigin src="./assets/index-BKGLgwac.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BlkBxp7S.css">
 </head>
 
 <body>
@@ -28,6 +28,8 @@
             </div>
         <div class="road" data-js-road>
             <div class="road-marking" data-js-road-marking></div>
+            <div class="start-line" data-js-start-line></div>
+            <div class="finish-line" data-js-finish-line></div>
 
             <div class="backdrop end-game" data-js-end-game-backdrop>
                 <div class="end-game__wrapper">
@@ -77,8 +79,6 @@
         <div class="car car__ai car__ai--2" data-js-ai-car>
             <img src="./images/car.png" alt="">
         </div>
-
-        <div class="finish-line" data-js-finish-line></div>
 
         <div class="tree tree-1" data-js-tree>
             <img src="./images/tree1.png" alt="">
@@ -194,12 +194,15 @@
         <div class="race-result" data-js-crash-modal>
             <div class="race-result__inner">
                 <h2 class="race-result__title" style="color: #e74c3c;">💥 Авария!</h2>
-                <p style="text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: #fff;">Вы врезались в знак!</p>
-                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                    <button class="button" style="background: #27ae60; width: 100%;" type="button" data-js-crash-revive>
+                <p style="text-align: center; margin-bottom: 5px; font-size: 1.2rem; color: rgba(255, 255, 255, 0.8);">Вы врезались в препятствие!</p>
+                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                    <button class="race-result__btn race-result__btn--green" type="button" data-js-crash-revive>
                         ❤️ Возродиться (Осталось: <span data-js-crash-lives>0</span>)
                     </button>
-                    <button class="button" style="background: #e74c3c; width: 100%;" type="button" data-js-crash-restart>Начать заново</button>
+                    <div style="display: flex; gap: 12px; width: 100%;">
+                        <button class="race-result__btn race-result__btn--red" type="button" data-js-crash-restart style="flex: 1;">Начать заново</button>
+                        <button class="race-result__btn race-result__btn--orange" type="button" data-js-open-shop style="flex: 1;">🛒 Магазин</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -208,9 +211,9 @@
             <div class="race-result__inner">
                 <h2 class="race-result__title">🏁 Финиш !</h2>
                 <ul class="race-result__list" data-js-result-list></ul>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="button" data-js-restart>Сыграть снова</button>
-                    <button class="button" style="background: #e67e22;" type="button" data-js-open-shop>🛒 Магазин</button>
+                <div style="display: flex; gap: 12px; margin-top: 20px; width: 100%;">
+                    <button class="race-result__btn" type="button" data-js-restart>Сыграть снова</button>
+                    <button class="race-result__btn race-result__btn--orange" type="button" data-js-open-shop>🛒 Магазин</button>
                 </div>
             </div>
         </div>
@@ -220,11 +223,16 @@
             <p class="game-score__value" data-js-game-score-value>0</p>
         </div>
 
+        <div class="game-level" data-js-game-level-wrapper>
+            <p class="game-level__title">Уровень:</p>
+            <p class="game-level__value" data-js-game-level-value>1</p>
+        </div>
+
         <div class="button-wrapper">
-            <button class="button button__game" type="button" data-js-start-game-button>
+            <!-- <button class="button button__game" type="button" data-js-start-game-button>
                 <img class="button__pause" src="./images/pause.png" alt="">
                 <img class="button__play visually-hidden" src="./images/play.png" alt="">
-            </button>
+            </button> -->
 
             <button class="button__sound button" data-js-sound-button>
                 <img class="button__sound-on" src="./images/sound-on.png"></img>
