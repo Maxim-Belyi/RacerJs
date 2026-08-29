@@ -6,6 +6,7 @@ export const Sounds = {
   init() {
     this.audio.main = new Audio('./media/background-music.mp3');
     this.audio.main.volume = 0.4;
+    this.audio.main.loop = true;
 
     this.audio.coin = new Audio('./media/coin.mp3');
     this.audio.coin.volume = 0.3;
@@ -26,7 +27,9 @@ export const Sounds = {
   },
 
   resumeAll() {
-    Object.values(this.audio).forEach((audio) => audio.play());
+    if (this.audio.main) {
+      this.audio.main.play();
+    }
   },
 
   toggleMute() {

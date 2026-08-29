@@ -52,13 +52,22 @@ import { getCarClass } from './utils/car-catalog.js';
 import { runCountdown } from './utils/countdown.js';
 import { AiCar, resolveAiPlayerCollision, resolveAiAiCollision } from './utils/ai-car.js';
 import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
+import { YandexAds } from './utils/yandex-ads.js';
 
-(function () {
+(async function () {
+  // Initialize SDK and Storage before showing the game UI
+  await YandexAds.init();
+  await Storage.init();
+  
+  // Notify platform that the game is loaded and ready to show the start screen
+  YandexAds.notifyReady();
+
   let isPause = true;
   let animationId = null;
   let score = 0;
   let magnetActive = false;
   let magnetTimeout = null;
+  let coinDoubleUsed = false;
 
   let blueCarMoveSpeed = 3;
   let treesMoveSpeed = 7;
@@ -85,6 +94,7 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   const EXTRA_COIN_COUNT = 16;
   const OFFSCREEN_Y = -10000; 
   const extraCoins = [];
+  const persistentBonusCoins = []; // filled each game based on coinUpgradeLevel
 
   for (let i = 0; i < EXTRA_COIN_COUNT; i++) {
     const el = document.createElement('div');
@@ -474,6 +484,14 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       }
     });
 
+    persistentBonusCoins.forEach(c => {
+      elementAnimation(c.element, c.info, c.speed, actualSignsSpeed);
+      if (magnetActive && c.info.visible) pullCoinToCar(c.info);
+      if (c.info.visible && hasCollision(blueCarInfo, c.info)) {
+        collectCoin(c.element, c.info);
+      }
+    });
+
     [{ el: arrow, info: arrowInfo }, { el: arrowB, info: arrowBInfo }].forEach(({ el, info }) => {
       elementAnimation(el, info, 4000, actualSignsSpeed);
       if (info.visible && hasCollision(blueCarInfo, info)) {
@@ -640,9 +658,7 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
 
 
   function finishGame() {
-    isPause = true;
-    cancelAnimationFrame(animationId);
-    stopCarAnimations();
+    pauseGame();
     if (carMagnetIndicator) carMagnetIndicator.style.display = 'none';
     magnetActive = false;
     clearTimeout(magnetTimeout);
@@ -685,8 +701,7 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   }
 
   function finishRace() {
-    cancelAnimationFrame(animationId);
-    stopCarAnimations();
+    pauseGame();
     if (carMagnetIndicator) carMagnetIndicator.style.display = 'none';
     magnetActive = false;
     clearTimeout(magnetTimeout);
@@ -713,6 +728,15 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       .join('');
 
     raceResultEl.classList.add('visible');
+
+    // Reset double-coins button for this race
+    coinDoubleUsed = false;
+    const dcBtn = document.querySelector('[data-js-double-coins]');
+    if (dcBtn) {
+      dcBtn.style.display = '';
+      dcBtn.disabled = false;
+      dcBtn.innerHTML = '<span class="ad-btn__icon">▶</span><span>x2 монет</span>';
+    }
 
     // Animate coin count-up after modal appears
     const coinsValueEl = document.querySelector('[data-js-result-coins-value]');
@@ -781,8 +805,7 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
         blueCar.classList.remove('car--invulnerable');
       }, 2000);
 
-      isPause = false;
-      animationId = requestAnimationFrame(startGame);
+      resumeGame();
     }
   });
 
@@ -791,6 +814,109 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
     window.location.reload();
   });
 
+  const crashReviveAdBtn = document.querySelector('[data-js-crash-revive-ad]');
+  if (crashReviveAdBtn) {
+    crashReviveAdBtn.addEventListener('click', () => {
+      crashReviveAdBtn.disabled = true;
+      crashReviveAdBtn.textContent = 'Загрузка рекламы…';
+
+      YandexAds.showRewardedAd({
+        onRewarded() {
+          // Perform the same revive logic as the lives button
+          activeDangerInfos.forEach((dInfo, i) => {
+            dInfo.coords.y -= 1500;
+            dInfo.visible = false;
+            activeDangerElems[i].style.display = 'none';
+          });
+          activeCracksInfos.forEach((cInfo, i) => {
+            cInfo.coords.y -= 1500;
+            cInfo.visible = false;
+            activeCracks[i].style.display = 'none';
+          });
+          crashModal.classList.remove('visible');
+          isInvulnerable = true;
+          blueCar.classList.add('car--invulnerable');
+          setTimeout(() => {
+            isInvulnerable = false;
+            blueCar.classList.remove('car--invulnerable');
+          }, 2000);
+          resumeGame();
+        },
+        onClose() {
+          // Re-enable button if ad closed without reward
+          crashReviveAdBtn.disabled = false;
+          crashReviveAdBtn.innerHTML = '<span class="ad-btn__icon">▶</span><span>Возродиться</span>';
+        },
+        onError() {
+          crashReviveAdBtn.disabled = false;
+          crashReviveAdBtn.innerHTML = '<span class="ad-btn__icon">▶</span><span>Возродиться</span>';
+        },
+      });
+    });
+  }
+
+  const doubleCoinsBtn = document.querySelector('[data-js-double-coins]');
+  if (doubleCoinsBtn) {
+    doubleCoinsBtn.addEventListener('click', () => {
+      if (coinDoubleUsed) return;
+      doubleCoinsBtn.disabled = true;
+      doubleCoinsBtn.innerHTML = '<span class="ad-btn__icon">▶</span><span>Загрузка рекламы…</span>';
+
+      YandexAds.showRewardedAd({
+        onRewarded() {
+          coinDoubleUsed = true;
+          // Add the same amount again (doubles the race earnings)
+          Storage.addCoins(score);
+
+          // Animate the new total
+          const coinsValueEl = document.querySelector('[data-js-result-coins-value]');
+          if (coinsValueEl) {
+            const from  = score;
+            const to    = score * 2;
+            const steps = 30;
+            const delay = 40;
+            let i = 0;
+            const t = setInterval(() => {
+              i++;
+              const val = Math.round(from + (to - from) * (i / steps));
+              coinsValueEl.textContent = val;
+              coinsValueEl.classList.remove('tick');
+              void coinsValueEl.offsetWidth;
+              coinsValueEl.classList.add('tick');
+              if (Sounds.isPlaying) {
+                try {
+                  const ding = Sounds.audio.coin.cloneNode();
+                  ding.volume = 0.2;
+                  ding.play().catch(() => {});
+                } catch (_) {}
+              }
+              if (i >= steps) {
+                clearInterval(t);
+                coinsValueEl.classList.remove('tick');
+              }
+            }, delay);
+          }
+
+          // Hide the button after use
+          doubleCoinsBtn.style.display = 'none';
+        },
+        onClose() {
+          if (!coinDoubleUsed) {
+            doubleCoinsBtn.disabled = false;
+            doubleCoinsBtn.innerHTML = '<span class="ad-btn__icon">▶</span><span>x2 монет</span>';
+          }
+        },
+        onError() {
+          if (!coinDoubleUsed) {
+            doubleCoinsBtn.disabled = false;
+            doubleCoinsBtn.innerHTML = '<span class="ad-btn__icon">▶</span><span>x2 монет</span>';
+          }
+        },
+      });
+    });
+  }
+
+  // Reset double-coins state when restarting
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-js-restart]')) {
       sessionStorage.setItem('skipWelcome', 'true');
@@ -812,6 +938,39 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       blueCarMoveSpeed = 3 * playerCarClass.modifier;
       treesMoveSpeed = 7 * playerCarClass.modifier;
       signsMoveSpeed = 5 * playerCarClass.modifier;
+
+      // Apply speed upgrade: +2% per level
+      const speedUpgradeMult = 1 + (state.speedUpgradeLevel || 0) * 0.02;
+      blueCarMoveSpeed *= speedUpgradeMult;
+      treesMoveSpeed   *= speedUpgradeMult;
+      signsMoveSpeed   *= speedUpgradeMult;
+
+      // Apply coin upgrade: activate extra coin slots on road
+      // base = 8 coins (coinA–coinG + coinInfo), coinUpgradeLevel adds extra "active" visibility
+      // We control this via extraCoinSlots stored on window for pickup logic
+      window.extraCoinSlotsActive = state.coinUpgradeLevel || 0;
+
+      // Create persistent bonus coins on road for this race
+      persistentBonusCoins.forEach(c => c.element.remove());
+      persistentBonusCoins.length = 0;
+      const bonusCount = state.coinUpgradeLevel || 0;
+      const coinW = 40;
+      // Use same parent as regular coins so coordinate systems match for collision detection
+      const coinParent = coin.parentElement;
+      for (let i = 0; i < bonusCount; i++) {
+        const bel = document.createElement('div');
+        bel.className = 'signs signs__coin coin-bonus';
+        bel.innerHTML = '<img src="./images/coin.png" alt="">';
+        coinParent.appendChild(bel);
+        const binfo = createElementInfo(bel);
+        binfo.width  = coinW;
+        binfo.height = coinW;
+        binfo.coords.x = Math.random() * Math.max(0, roadWidth - coinW);
+        binfo.coords.y = -(1200 + i * 1500);
+        binfo.visible  = true;
+        bel.style.transform = `translate(${binfo.coords.x}px, ${binfo.coords.y}px)`;
+        persistentBonusCoins.push({ element: bel, info: binfo, speed: 1000 + i * 400 });
+      }
 
       const aiCarImages = [
         './images/car.png',
@@ -841,8 +1000,7 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
         aiCars.push(ai);
       });
 
-      isPause = false;
-      animationId = requestAnimationFrame(startGame);
+      resumeGame();
       if (gameButton) {
         gameButton.children[1].classList.remove('visually-hidden');
         gameButton.children[0].classList.add('visually-hidden');
@@ -858,21 +1016,63 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   initShop();
   applySkin(Storage.get().selectedCar);
 
+  function pauseGame() {
+    if (isPause) return;
+    isPause = true;
+    cancelAnimationFrame(animationId);
+    stopCarAnimations();
+    Sounds.pauseAll();
+    YandexAds.gameplayStop();
+    if (gameButton) {
+      gameButton.children[1].classList.add('visually-hidden');
+      gameButton.children[0].classList.remove('visually-hidden');
+    }
+  }
+
+  function resumeGame() {
+    if (!isPause) return;
+    if (welcomeScreen.style.display !== 'none' || 
+        crashModal.classList.contains('visible') || 
+        raceResultEl.classList.contains('visible')) {
+      return;
+    }
+    isPause = false;
+    animationId = requestAnimationFrame(startGame);
+    Sounds.resumeAll();
+    YandexAds.gameplayStart();
+    if (gameButton) {
+      gameButton.children[1].classList.remove('visually-hidden');
+      gameButton.children[0].classList.add('visually-hidden');
+    }
+  }
+
   if (gameButton) {
     gameButton.addEventListener('click', () => {
-      isPause = !isPause;
       if (isPause) {
-        cancelAnimationFrame(animationId);
-        stopCarAnimations();
-        gameButton.children[1].classList.add('visually-hidden');
-        gameButton.children[0].classList.remove('visually-hidden');
+        resumeGame();
       } else {
-        animationId = requestAnimationFrame(startGame);
-        gameButton.children[1].classList.remove('visually-hidden');
-        gameButton.children[0].classList.add('visually-hidden');
+        pauseGame();
       }
     });
   }
+
+  // Handle tab visibility loss for Yandex Games requirements
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      pauseGame();
+    }
+  });
+
+  // Handle ads shown by YandexAds SDK
+  document.addEventListener('ya-ad-open', () => {
+    pauseGame();
+  });
+
+  document.addEventListener('ya-ad-close', () => {
+    // We can auto-resume, but only if the user didn't intentionally pause before
+    // For simplicity, we just try to resume. It won't if a modal is visible.
+    resumeGame();
+  });
 
   musicToggle.addEventListener('click', () => {
     Sounds.toggleMute();

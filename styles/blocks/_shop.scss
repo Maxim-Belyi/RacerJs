@@ -291,3 +291,39 @@
         }
     }
 }
+
+// ── Upgrade progress indicator ────────────────────────────────────────────────
+.shop-item__upgrade-progress {
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+    margin-top: rem(6);
+}
+
+.upgrade-dots {
+    display: flex;
+    gap: rem(4);
+}
+
+.upgrade-dot {
+    width: rem(10);
+    height: rem(10);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: background 0.3s, box-shadow 0.3s;
+
+    &.filled {
+        background: linear-gradient(135deg, #ffd700, #f39c12);
+        border-color: #ffd700;
+        box-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+    }
+}
+
+.upgrade-level-text {
+    font-size: rem(11);
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}

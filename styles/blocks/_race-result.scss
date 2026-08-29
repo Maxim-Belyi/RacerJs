@@ -169,6 +169,51 @@
         &:hover { box-shadow: 0 6px 22px rgba(243, 156, 18, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
     }
 
+    &--ad {
+        background: linear-gradient(135deg, #7c3aed, #5b21b6);
+        box-shadow:
+            0 4px 15px rgba(124, 58, 237, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(167, 139, 250, 0.4);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+            transform: translateX(-100%);
+            animation: ad-shimmer 2.5s ease-in-out infinite;
+        }
+
+        &:hover {
+            box-shadow:
+                0 6px 22px rgba(124, 58, 237, 0.75),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            transform: scale(1.04);
+        }
+
+        .ad-btn__icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: rem(22);
+            height: rem(22);
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            font-size: rem(10);
+            flex-shrink: 0;
+            animation: ad-icon-pulse 1.8s ease-in-out infinite;
+        }
+    }
+
+    &--x2 {
+        font-size: rem(18);
+        font-weight: 900;
+        letter-spacing: 1px;
+    }
+
     @include mobile {
         font-size: rem(14);
         padding: rem(12) rem(16);
@@ -176,7 +221,17 @@
   }
 }
 
-// ── Coins collected block ─────────────────────────────────────────────────────
+@keyframes ad-shimmer {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes ad-icon-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(1.2); opacity: 0.85; }
+}
+
 .race-result__coins {
   display: flex;
   align-items: center;
