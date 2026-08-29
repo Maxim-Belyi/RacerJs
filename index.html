@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car game</title>
-  <script type="module" crossorigin src="./assets/index-DkVE1uv-.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Cgqhq78B.css">
+  <script type="module" crossorigin src="./assets/index-CjFY2fbS.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-QQXy2Dmp.css">
 </head>
 
 <body>
@@ -209,9 +209,14 @@
 
         <div class="race-result" data-js-race-result>
             <div class="race-result__inner">
-                <h2 class="race-result__title">🏁 Финиш !</h2>
+                <h2 class="race-result__title">🏁 Финиш!</h2>
                 <ul class="race-result__list" data-js-result-list></ul>
-                <div style="display: flex; gap: 12px; margin-top: 20px; width: 100%;">
+                <div class="race-result__coins" data-js-result-coins>
+                    <span class="race-result__coins-label">Собрано</span>
+                    <span class="race-result__coins-icon">🪙</span>
+                    <span class="race-result__coins-value" data-js-result-coins-value>0</span>
+                </div>
+                <div style="display: flex; gap: 12px; width: 100%;">
                     <button class="race-result__btn" type="button" data-js-restart>Сыграть снова</button>
                     <button class="race-result__btn race-result__btn--orange" type="button" data-js-open-shop>🛒 Магазин</button>
                 </div>
