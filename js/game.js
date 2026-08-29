@@ -110,8 +110,10 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
 
   let carMagnetIndicator = null;
 
-  [coinInfo, coinAltInfo, coinBInfo, coinCInfo, coinDInfo, coinEInfo, coinFInfo, coinGInfo].forEach(info => {
-    if (!Number.isFinite(info.coords.x)) info.coords.x = 0;
+  const allSignInfos = [coinInfo, coinAltInfo, coinBInfo, coinCInfo, coinDInfo, coinEInfo, coinFInfo, coinGInfo];
+  allSignInfos.forEach(info => {
+    const w = info.width || 50;
+    info.coords.x = Math.random() * Math.max(0, roadWidth - w);
   });
 
   coinInfo.coords.y    = -450;
@@ -123,10 +125,15 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   coinFInfo.coords.y   = -2100;
   coinGInfo.coords.y   = -3000;
 
-  arrowInfo.coords.y = -2000;
-  arrowInfo.visible = true;
+  const arrowW = arrowInfo.width || 50;
+  arrowInfo.coords.x  = Math.random() * Math.max(0, roadWidth - arrowW);
+  arrowInfo.coords.y  = -2000;
+  arrowInfo.visible   = true;
+  arrowBInfo.coords.x = Math.random() * Math.max(0, roadWidth - arrowW);
   arrowBInfo.coords.y = -4000;
-  arrowBInfo.visible = true;
+  arrowBInfo.visible  = true;
+  const magnetW = magnetInfo.width || 50;
+  magnetInfo.coords.x = Math.random() * Math.max(0, roadWidth - magnetW);
   magnetInfo.coords.y = -6000;
   magnet.style.display = 'none';
   magnetInfo.visible = false;
@@ -178,6 +185,15 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
     info.visible = true;
     el.style.display = 'initial';
   });
+
+  // Apply initial transforms to all signs so CSS defaults are overridden immediately
+  allSignInfos.forEach((info, i) => {
+    const elems = [coin, coinAlt, coinB, coinC, coinD, coinE, coinF, coinG];
+    elems[i].style.transform = `translate(${info.coords.x}px, ${info.coords.y}px)`;
+  });
+  arrow.style.transform  = `translate(${arrowInfo.coords.x}px, ${arrowInfo.coords.y}px)`;
+  arrowB.style.transform = `translate(${arrowBInfo.coords.x}px, ${arrowBInfo.coords.y}px)`;
+  magnet.style.transform = `translate(${magnetInfo.coords.x}px, ${magnetInfo.coords.y}px)`;
 
   const blueCarInfo = {
     ...createElementInfo(blueCar),
