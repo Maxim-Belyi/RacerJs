@@ -577,7 +577,7 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       // AI collision with cracks
       for (const cInfo of activeCracksInfos) {
         if (cInfo.visible && ai.overlaps(cInfo)) {
-          ai.crash(cInfo.coords.x + cInfo.width / 2); // Cracks also cause a brief crash/bounce
+          ai.bump(); // Cracks cause a minor slowdown without sideways knockback
         }
       }
 
@@ -674,6 +674,9 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
     if (carMagnetIndicator) carMagnetIndicator.style.display = 'none';
     magnetActive = false;
     clearTimeout(magnetTimeout);
+
+    // Save coins collected during the race
+    Storage.addCoins(score);
 
     const places = [
       { label: 'You', dist: playerTravelDist },

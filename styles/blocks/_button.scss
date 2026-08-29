@@ -63,11 +63,11 @@
         &__right,
         &__down,
         &__top {
-            width: fluid(60, 40);
+            width: fluid(80, 60);
         }
 
         &__top {
-            padding-bottom: rem(60);
+            padding-bottom: rem(80);
         }
         &__left {
             rotate: -90deg;
@@ -75,7 +75,7 @@
 
         &__down {
             rotate: 180deg;
-            padding-bottom: rem(60);
+            padding-bottom: rem(80);
         }
 
         &__right {

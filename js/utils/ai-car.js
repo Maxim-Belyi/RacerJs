@@ -55,14 +55,17 @@ export class AiCar {
   update(playerTravelDist, baseSpeed, dangerInfos, coins, arrows, cracks) {
     if (this.knockbackFrames > 0) {
       this.knockbackFrames--;
-      this.travelDist += baseSpeed * -0.6; 
-      this.vx *= 0.95; 
-      this.x = this._clamp(this.x + this.vx); 
+      // During knockback: car moves backward slowly
+      this.travelDist -= baseSpeed * 0.4;
+      // Keep y in sync with travelDist so there's no jump when knockback ends
+      this.y = this._baseY + (playerTravelDist - this.travelDist);
+      this.vx *= 0.92;
+      this.x = this._clamp(this.x + this.vx);
       
       if (this.stunFrames > 0) this.stunFrames--;
       this._applyLean();
       this._sync();
-      return; 
+      return;
     }
 
     let speedFactor;
@@ -140,21 +143,29 @@ export class AiCar {
   crash(dangerCX) {
     if (this.stunFrames > 0 || this.knockbackFrames > 0) return;
     this.stunFrames      = STUN_FRAMES;
-    this.knockbackFrames = 18;
+    this.knockbackFrames = 15;
     this.element.classList.add('ai-stunned');
     setTimeout(() => this.element.classList.remove('ai-stunned'), 1600);
 
     const myCX = this.x + this.width / 2;
     const dir = myCX < dangerCX ? -1 : 1;
-    this.vx = dir * 18; 
+    this.vx = dir * 8; // Reasonable sideways jolt
 
     if (myCX < dangerCX) {
-      this.targetX = Math.max(0, dangerCX - this.width * 2.5); 
+      this.targetX = Math.max(0, dangerCX - this.width * 2.0); 
     } else {
-      this.targetX = Math.min(this.roadWidth - this.width, dangerCX + this.width * 1.5);
+      this.targetX = Math.min(this.roadWidth - this.width, dangerCX + this.width * 1.0);
     }
     this.retargetTimer = 80;
     this._targetModifier = 1.0;
+  }
+
+  bump() {
+    // Minor slow down for cracks, no sideways knockback
+    if (this.stunFrames > 0 || this.knockbackFrames > 0) return;
+    this.stunFrames = 60; // Shorter stun for cracks
+    this.element.classList.add('ai-slowed');
+    setTimeout(() => this.element.classList.remove('ai-slowed'), 1000);
   }
 
   boost() {
