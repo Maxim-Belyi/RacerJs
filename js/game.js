@@ -713,6 +713,45 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       .join('');
 
     raceResultEl.classList.add('visible');
+
+    // Animate coin count-up after modal appears
+    const coinsValueEl = document.querySelector('[data-js-result-coins-value]');
+    if (coinsValueEl && score > 0) {
+      const totalFrames = Math.min(score, 60); // max 60 ticks regardless of score
+      const stepTime = Math.max(30, Math.min(80, 1200 / score)); // 30–80ms per tick
+      let current = 0;
+      coinsValueEl.textContent = '0';
+
+      // Preload coin audio clone for rapid replaying
+      const coinAudioEl = Sounds.audio.coin;
+
+      const countUp = setInterval(() => {
+        const step = Math.ceil((score - current) / (totalFrames - Math.min(current, totalFrames - 1)));
+        current = Math.min(current + step, score);
+        coinsValueEl.textContent = current;
+
+        // tick animation
+        coinsValueEl.classList.remove('tick');
+        void coinsValueEl.offsetWidth; // force reflow
+        coinsValueEl.classList.add('tick');
+
+        // play coin sound (clone to allow rapid repeat)
+        if (Sounds.isPlaying) {
+          try {
+            const ding = coinAudioEl.cloneNode();
+            ding.volume = 0.25;
+            ding.play().catch(() => {});
+          } catch (_) {}
+        }
+
+        if (current >= score) {
+          clearInterval(countUp);
+          coinsValueEl.classList.remove('tick');
+        }
+      }, stepTime);
+    } else if (coinsValueEl) {
+      coinsValueEl.textContent = '0';
+    }
   }
 
   crashReviveBtn.addEventListener('click', () => {
