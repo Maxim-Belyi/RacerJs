@@ -77,6 +77,11 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   const dangerElem = danger; 
   const dangerInfo = createElementInfo(dangerElem);
 
+  let activeDangerElems = [dangerElem];
+  let activeDangerInfos = [dangerInfo];
+  let activeCracks = [...cracks];
+  let activeCracksInfos = [...cracksInfo];
+
   const EXTRA_COIN_COUNT = 16;
   const OFFSCREEN_Y = -10000; 
   const extraCoins = [];
@@ -126,13 +131,53 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   magnet.style.display = 'none';
   magnetInfo.visible = false;
 
-  dangerInfo.coords.y = -3000;
+  const level = Storage.get().gameLevel || 1;
 
-  for (let i = 0; i < cracks.length; i++) {
-    cracksInfo[i].coords.y = -2000 - (i * 2500);
-    cracksInfo[i].visible = true;
-    cracks[i].style.display = 'initial';
+  // Clean up previous dynamically added items
+  [...document.querySelectorAll('.dynamic-danger, .dynamic-crack')].forEach(el => el.remove());
+  
+  activeDangerElems = [dangerElem];
+  activeDangerInfos = [dangerInfo];
+  activeCracks = [...cracks];
+  activeCracksInfos = [...cracksInfo];
+
+  const extraDangersCount = Math.floor((level - 1) / 5);
+  const extraCracksCount = Math.floor((level - 1) / 3);
+  
+  const dangerParent = dangerElem.parentElement;
+  
+  for(let i = 0; i < extraDangersCount; i++) {
+    const clone = dangerElem.cloneNode(true);
+    clone.classList.add('dynamic-danger');
+    dangerParent.appendChild(clone);
+    activeDangerElems.push(clone);
+    activeDangerInfos.push(createElementInfo(clone));
   }
+
+  for(let i = 0; i < extraCracksCount; i++) {
+    const clone = cracks[0].cloneNode(true);
+    clone.classList.add('dynamic-crack');
+    dangerParent.appendChild(clone);
+    activeCracks.push(clone);
+    activeCracksInfos.push(createElementInfo(clone));
+  }
+
+  activeDangerElems.forEach((el, i) => {
+    const info = activeDangerInfos[i];
+    info.coords.x = Math.random() * (roadWidth - (info.width || 50));
+    info.coords.y = -3000 - (i * 4000);
+    info.visible = true;
+    el.style.opacity = 1;
+    el.style.display = 'initial';
+  });
+
+  activeCracks.forEach((el, i) => {
+    const info = activeCracksInfos[i];
+    info.coords.x = Math.random() * (roadWidth - (info.width || 50));
+    info.coords.y = -2000 - (i * 2500);
+    info.visible = true;
+    el.style.display = 'initial';
+  });
 
   const blueCarInfo = {
     ...createElementInfo(blueCar),
@@ -418,8 +463,12 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       if (info.visible && hasCollision(blueCarInfo, info)) {
         spawnPopLabel(el, 'BOOST!', 'boost');
         info.visible = false;
-        dangerElem.style.opacity = 0.2;
-        dangerInfo.visible = false;
+        
+        activeDangerElems.forEach((dEl, i) => {
+          dEl.style.opacity = 0.2;
+          activeDangerInfos[i].visible = false;
+        });
+        
         if (Sounds.isPlaying) Sounds.play('arrow');
 
         blueCar.classList.add('car--boosting');
@@ -429,13 +478,15 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
         playerBoostDelta  = 4;
 
         setTimeout(() => {
-          dangerElem.style.opacity = 1;
+          activeDangerElems.forEach((dEl) => dEl.style.opacity = 1);
           blueCarMoveSpeed -= 7;
           treesMoveSpeed   -= 5;
           signsMoveSpeed   -= 4;
           playerBoostDelta  = 0;
           blueCar.classList.remove('car--boosting');
-          setTimeout(() => { dangerInfo.visible = true; }, 1000);
+          setTimeout(() => { 
+            activeDangerInfos.forEach((dInfo) => dInfo.visible = true); 
+          }, 1000);
         }, 2000);
       }
     });
@@ -463,19 +514,21 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       }
     }
 
-    elementAnimation(dangerElem, dangerInfo, 3000, actualSignsSpeed);
-    if (!isInvulnerable && dangerInfo.visible && hasCollision(blueCarInfo, dangerInfo)) {
-      finishGame();
-      return;
+    for (let i = 0; i < activeDangerElems.length; i++) {
+      elementAnimation(activeDangerElems[i], activeDangerInfos[i], 3000 + i * 4000, actualSignsSpeed);
+      if (!isInvulnerable && activeDangerInfos[i].visible && hasCollision(blueCarInfo, activeDangerInfos[i])) {
+        finishGame();
+        return;
+      }
     }
 
-    for (let i = 0; i < cracks.length; i++) {
-      elementAnimation(cracks[i], cracksInfo[i], 2000 + (i * 2500), actualSignsSpeed);
-      if (!isInvulnerable && cracksInfo[i].visible && hasCollision(blueCarInfo, cracksInfo[i])) {
+    for (let i = 0; i < activeCracks.length; i++) {
+      elementAnimation(activeCracks[i], activeCracksInfos[i], 2000 + (i * 2500), actualSignsSpeed);
+      if (!isInvulnerable && activeCracksInfos[i].visible && hasCollision(blueCarInfo, activeCracksInfos[i])) {
         playerSlowDownFrames = 120;
-        cracksInfo[i].visible = false;
-        cracks[i].style.display = 'none';
-        cracksInfo[i].coords.y = -5000;
+        activeCracksInfos[i].visible = false;
+        activeCracks[i].style.display = 'none';
+        activeCracksInfos[i].coords.y = -5000;
         if (Sounds.isPlaying) Sounds.play('slow');
         blueCar.classList.add('car--damaged');
         setTimeout(() => blueCar.classList.remove('car--damaged'), 2000);
@@ -511,10 +564,22 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
     ];
 
     aiCars.forEach(ai => {
-      ai.update(playerTravelDist, aiBaseSpeed, dangerInfo, coinsForAi, arrowsForAi, cracksInfo);
+      ai.update(playerTravelDist, aiBaseSpeed, activeDangerInfos, coinsForAi, arrowsForAi, activeCracksInfos);
       resolveAiPlayerCollision(ai, blueCarInfo, blueCar, roadWidth);
 
-      if (ai.overlaps(dangerInfo)) ai.crash(dangerInfo.coords.x + dangerInfo.width / 2);
+      // AI collision with danger signs
+      for (const dInfo of activeDangerInfos) {
+        if (dInfo.visible && ai.overlaps(dInfo)) {
+          ai.crash(dInfo.coords.x + dInfo.width / 2);
+        }
+      }
+
+      // AI collision with cracks
+      for (const cInfo of activeCracksInfos) {
+        if (cInfo.visible && ai.overlaps(cInfo)) {
+          ai.crash(cInfo.coords.x + cInfo.width / 2); // Cracks also cause a brief crash/bounce
+        }
+      }
 
       coinsForAi.forEach(c => {
         if (c.info.visible && ai.overlaps(c.info)) {
@@ -598,7 +663,6 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
   const resultListEl        = document.querySelector('[data-js-result-list]');
   const gameLevelValue      = document.querySelector('[data-js-game-level-value]');
 
-  // Initialize level on load
   if (gameLevelValue) {
     const st = Storage.get();
     gameLevelValue.textContent = st.gameLevel || 1;
@@ -638,9 +702,17 @@ import { FinishLine, StartLine, RACE_DISTANCE } from './utils/finish-line.js';
       state.extraLives--;
       Storage.save(state);
       
-      dangerInfo.coords.y -= 1500;
-      dangerInfo.visible = false;
-      dangerElem.style.display = 'none';
+      activeDangerInfos.forEach((dInfo, i) => {
+        dInfo.coords.y -= 1500;
+        dInfo.visible = false;
+        activeDangerElems[i].style.display = 'none';
+      });
+
+      activeCracksInfos.forEach((cInfo, i) => {
+        cInfo.coords.y -= 1500;
+        cInfo.visible = false;
+        activeCracks[i].style.display = 'none';
+      });
       
       crashModal.classList.remove('visible');
       isInvulnerable = true;

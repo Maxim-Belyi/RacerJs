@@ -1,33 +1,21 @@
-// ─── Physics tuning ─────────────────────────────────────────────────────────
-const FRICTION          = 0.85;   // lateral damping (higher = stops quicker)
-const STEER_FORCE       = 0.018;  // strength of steering toward target lane
-const MAX_VX            = 4.5;    // max horizontal speed
-const SEP_FORCE         = 8;      // push force when cars collide
+const FRICTION          = 0.85;   
+const STEER_FORCE       = 0.018; 
+const MAX_VX            = 4.5;   
+const SEP_FORCE         = 8;      
 
-// ─── Danger / crack avoidance ────────────────────────────────────────────────
-// AI starts reacting when obstacle is this many px ahead (Y axis)
 const AVOID_LOOK_AHEAD  = 550;
-// Horizontal detection half-width. Wider = reacts earlier sideways
 const AVOID_HWIDTH      = 140;
-// Force applied each frame to steer away from obstacle
 const AVOID_FORCE       = 1.6;
 
-// ─── Overtake (chasing player) ───────────────────────────────────────────────
-// How many px behind the player the AI starts trying to overtake
 const OVERTAKE_DIST     = 80;
-// Soft speed cap relative to base speed (multiplier). AI never accelerates
-// by MORE than this factor above the world base speed.
 const OVERTAKE_MULT_MAX = 1.12;
-// Slow lerp rate for speed modifier (prevents sudden surges)
 const SPEED_LERP        = 0.02;
 
-// ─── Boost / stun ────────────────────────────────────────────────────────────
-const BOOST_SPEED_MULT  = 1.35;   // arrow pickup — gentler than before
+const BOOST_SPEED_MULT  = 1.35;  
 const BOOST_DURATION    = 2200;
 const STUN_FRAMES       = 100;
 const STUN_SPEED_MULT   = 0.12;
 
-// ─── Retarget (random lane drift) ────────────────────────────────────────────
 const RETARGET_MIN      = 90;
 const RETARGET_MAX      = 220;
 
@@ -43,28 +31,18 @@ export class AiCar {
     this.vx         = 0;
     this._baseY     = 0;   // fixed Y reference (road coord system, set at place())
 
-    // Target lane X (center of lane the AI wants to reach)
     this.targetX    = 0;
-
-    // Retarget countdown (frames until next random lane pick)
     this.retargetTimer = 0;
-
-    // Obstacle avoidance state
-    this.avoidDir   = 0;   // -1 left / 0 none / +1 right
-
-    // Speed state
+    this.avoidDir   = 0;   
     this.stunFrames       = 0;
     this.knockbackFrames  = 0;
     this.travelDist       = 0;
-
-    // Current speed modifier (smoothly lerped toward target)
     this.modifier       = 1.0;
     this._targetModifier = 1.0;
 
     this.boosting   = false;
   }
 
-  // ── place ──────────────────────────────────────────────────────────────────
   place(x, y, syncTravelDist) {
     this.x = this._clamp(x);
     this.y = y;
@@ -74,17 +52,17 @@ export class AiCar {
     this._sync();
   }
 
-  // ── update (called every frame) ────────────────────────────────────────────
-  update(playerTravelDist, baseSpeed, dangerInfo, coins, arrows, cracks) {
-    // ── 1. Speed factor ──────────────────────────────────────────────────────
+  update(playerTravelDist, baseSpeed, dangerInfos, coins, arrows, cracks) {
     if (this.knockbackFrames > 0) {
       this.knockbackFrames--;
-      this.travelDist += baseSpeed * -0.4;
-      this.vx += (Math.random() - 0.5) * 1.8;
+      this.travelDist += baseSpeed * -0.6; 
+      this.vx *= 0.95; 
+      this.x = this._clamp(this.x + this.vx); 
+      
       if (this.stunFrames > 0) this.stunFrames--;
       this._applyLean();
       this._sync();
-      return; // skip normal steering while bouncing back
+      return; 
     }
 
     let speedFactor;
@@ -99,30 +77,22 @@ export class AiCar {
       speedFactor = this.modifier;
     }
 
-    // ── 2. Advance travel distance ───────────────────────────────────────────
     this.travelDist += baseSpeed * speedFactor;
-
-    // ── 3. Y position: fixed in road coords, adjusted only by travel delta ───
-    // _baseY is the player's starting Y (road coord) and never changes.
-    // This way AI cars don't mirror the player's up/down key presses.
     this.y = this._baseY + (playerTravelDist - this.travelDist);
-
-
-
-    // ── 4. Steering (only when not stunned) ──────────────────────────────────
     if (this.stunFrames <= 0) {
 
-      // 4a. Retarget random lane periodically (gentle drift)
       if (--this.retargetTimer <= 0) {
         this.retargetTimer = RETARGET_MIN + Math.random() * (RETARGET_MAX - RETARGET_MIN);
-        // Pick a random target lane but stay comfortably inside road
         const margin = this.width * 0.5;
         this.targetX = margin + Math.random() * (this.roadWidth - this.width - margin * 2);
       }
 
-      // 4b. Avoidance: danger sign + cracks ────────────────────────────────
       this.avoidDir = 0;
-      this._computeAvoidance(dangerInfo);
+      if (dangerInfos) {
+        for (const info of dangerInfos) {
+          if (info.visible) this._computeAvoidance(info);
+        }
+      }
       if (cracks) {
         for (const crack of cracks) {
           if (crack.visible) this._computeAvoidance(crack);
@@ -130,7 +100,6 @@ export class AiCar {
       }
 
       if (this.avoidDir !== 0) {
-        // Steer hard away; also override targetX to the "safe" side
         this.vx += this.avoidDir * AVOID_FORCE;
         const safeX = this.avoidDir < 0
           ? Math.max(0, this.x - 180)
@@ -143,23 +112,17 @@ export class AiCar {
       const steeredToArrow = this._steerToItem(arrows, 130, 420, 0.16);
       if (!steeredToArrow) this._steerToItem(coins, 90, 300, 0.10);
 
-      // 4d. Steer toward target lane ─────────────────────────────────────────
       this._steerToTarget();
 
-      // 4e. Overtake: if AI is clearly behind player, gently increase speed ─
-      // When this.y > _baseY, AI has fallen behind (positive = behind)
       const distBehind = this.y - this._baseY;
       if (distBehind > OVERTAKE_DIST) {
-        // Smoothly ramp up target modifier
         const ratio = Math.min(1, (distBehind - OVERTAKE_DIST) / 200);
         this._targetModifier = 1.0 + ratio * (OVERTAKE_MULT_MAX - 1.0);
       } else {
-        // Close to or ahead of starting position — normalize speed
         this._targetModifier = 1.0;
       }
     }
 
-    // ── 5. Clamp & apply physics ─────────────────────────────────────────────
     this.vx = Math.max(-MAX_VX, Math.min(MAX_VX, this.vx * FRICTION));
     this.x  = this._clamp(this.x + this.vx);
 
@@ -167,7 +130,6 @@ export class AiCar {
     this._sync();
   }
 
-  // ── public API ─────────────────────────────────────────────────────────────
   stun() {
     if (this.stunFrames > 0) return;
     this.stunFrames = STUN_FRAMES;
@@ -182,12 +144,14 @@ export class AiCar {
     this.element.classList.add('ai-stunned');
     setTimeout(() => this.element.classList.remove('ai-stunned'), 1600);
 
-    // Immediately pick a lane far from the obstacle
     const myCX = this.x + this.width / 2;
+    const dir = myCX < dangerCX ? -1 : 1;
+    this.vx = dir * 18; 
+
     if (myCX < dangerCX) {
-      this.targetX = Math.min(this.roadWidth - this.width, dangerCX + this.width * 1.5);
+      this.targetX = Math.max(0, dangerCX - this.width * 2.5); 
     } else {
-      this.targetX = Math.max(0, dangerCX - this.width * 2.5);
+      this.targetX = Math.min(this.roadWidth - this.width, dangerCX + this.width * 1.5);
     }
     this.retargetTimer = 80;
     this._targetModifier = 1.0;
@@ -207,12 +171,6 @@ export class AiCar {
     return { x: this.x, y: this.y, width: this.width, height: this.height };
   }
 
-  /**
-   * AABB collision check — works for any object that exposes
-   * either { coords: {x,y}, width, height } (road signs/coins/arrows)
-   * or     { x, y, width, height }          (other AI cars / player bounds).
-   * All coordinates are CSS-transform values in the same space.
-   */
   overlaps(b) {
     const bx = b.coords ? b.coords.x : b.x;
     const by = b.coords ? b.coords.y : b.y;
@@ -226,23 +184,19 @@ export class AiCar {
     );
   }
 
-  // ── private helpers ────────────────────────────────────────────────────────
-
-  /**
-   * Accumulates avoidance direction based on an obstacle's position.
-   * Uses lookahead on Y axis and horizontal proximity.
-   */
   _computeAvoidance(obs) {
     const ox = obs.coords ? obs.coords.x : obs.x;
     const oy = obs.coords ? obs.coords.y : obs.y;
+    if (oy < -1000) return; // Ignore deeply off-screen obstacles
+    
     const ow = obs.width  || 40;
     const obsCX = ox + ow / 2;
     const myCX  = this.x + this.width / 2;
     const dx    = Math.abs(obsCX - myCX);
     const dy    = oy - this.y;
 
-    if (dx < AVOID_HWIDTH && dy > -this.height && dy < AVOID_LOOK_AHEAD) {
-      const urgency = 1 - dy / AVOID_LOOK_AHEAD;
+    if (dx < AVOID_HWIDTH && dy < this.height && dy > -AVOID_LOOK_AHEAD) {
+      const urgency = 1 - Math.abs(dy) / AVOID_LOOK_AHEAD;
       const dir = myCX < obsCX ? -1 : 1;
       if (Math.abs(this.avoidDir) < urgency) {
         this.avoidDir = dir;
@@ -250,7 +204,6 @@ export class AiCar {
     }
   }
 
-  /** Steers toward the closest visible item in the array. Returns true if steered. */
   _steerToItem(items, hWidthPx, lookAheadPx, force) {
     if (!items) return false;
     let bestDy = Infinity;
@@ -300,7 +253,6 @@ export class AiCar {
   }
 }
 
-// ── Collision resolution helpers ──────────────────────────────────────────────
 export function resolveAiPlayerCollision(ai, playerInfo, playerElement, roadWidth) {
   const b = {
     x: playerInfo.coords.x,
@@ -318,20 +270,17 @@ export function resolveAiPlayerCollision(ai, playerInfo, playerElement, roadWidt
 }
 
 export function resolveAiAiCollision(a, b) {
-  // Check if they are relatively close on the Y axis
   if (Math.abs(a.y - b.y) > a.height * 1.5) return;
 
   const dx = (a.x + a.width / 2) - (b.x + b.width / 2);
   const minSeparation = a.width * 1.2;
 
-  // If they get too close horizontally, push them apart gently
   if (Math.abs(dx) < minSeparation) {
     const dir = dx > 0 ? 1 : -1;
     a.push(dir * 2);
     b.push(-dir * 2);
   }
 
-  // Hard collision resolution
   if (a.overlaps(b.getBounds())) {
     const hardDir = dx > 0 ? 1 : -1;
     a.push(hardDir * SEP_FORCE);

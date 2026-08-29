@@ -1,7 +1,7 @@
   export function getCoords(element) {
     const matrix = window.getComputedStyle(element).transform;
     let numericX = 0;
-    let numericY = -1000; // Default off-screen so it comes down
+    let numericY = -1000; 
     
     if (matrix && matrix !== 'none') {
         const array = matrix.split(",");
