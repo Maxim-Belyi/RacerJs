@@ -1,7 +1,7 @@
 export const Sounds = {
   audio: {},
-  isPlaying: true,
-  isMuted: false,
+  isPlaying: localStorage.getItem('racerjs_muted') !== 'true',
+  isMuted: localStorage.getItem('racerjs_muted') === 'true',
 
   init() {
     this.audio.main = new Audio('./media/background-music.mp3');
@@ -27,7 +27,7 @@ export const Sounds = {
   },
 
   resumeAll() {
-    if (this.audio.main) {
+    if (this.audio.main && !this.isMuted) {
       this.audio.main.play();
     }
   },
@@ -37,10 +37,12 @@ export const Sounds = {
       this.pauseAll();
       this.isPlaying = false;
       this.isMuted = true;
+      localStorage.setItem('racerjs_muted', 'true');
     } else if (this.isMuted) {
       this.resumeAll();
       this.isPlaying = true;
       this.isMuted = false;
+      localStorage.setItem('racerjs_muted', 'false');
     }  
   },
 };

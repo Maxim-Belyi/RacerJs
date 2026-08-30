@@ -689,6 +689,13 @@ import { YandexAds } from './utils/yandex-ads.js';
   carMagnetIndicator        = document.querySelector('[data-js-car-magnet]');
   const gameButton          = document.querySelector('[data-js-start-game-button]');
   const musicToggle         = document.querySelector('[data-js-sound-button]');
+  if (Sounds.isMuted) {
+    musicToggle.children[0].classList.add('visually-hidden');
+    musicToggle.children[1].classList.remove('visually-hidden');
+  } else {
+    musicToggle.children[0].classList.remove('visually-hidden');
+    musicToggle.children[1].classList.add('visually-hidden');
+  }
   const finishLine          = new FinishLine(document.querySelector('[data-js-finish-line]'), roadWidth);
   const startLine           = new StartLine(document.querySelector('[data-js-start-line]'), roadWidth);
   const raceResultEl        = document.querySelector('[data-js-race-result]');
